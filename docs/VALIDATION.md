@@ -6,6 +6,7 @@ Completed locally before packaging:
 - Static validation passed: local page/asset links, JavaScript syntax, vendored encoder SHA-256, MIT notices.
 - A separate jsQR 1.4.0 decoder read 63 raster fixtures made by the actual canvas-rendering function: 3 dates × 7 UTC offsets × 3 display sizes (592, 330 and 280 pixels). Every decoded string matched the intended payload. The decoder was a validation-only tool and is not shipped or required by the app.
 - The local HTTP server returned 200 for the application.
+- The README screenshot was captured from the running desktop app in Device Clock mode at 30 fps, with the live QR visible. The captured page was visually inspected for a complete, readable view of the app.
 
 ## Open-source release review
 
@@ -14,7 +15,7 @@ Completed locally before packaging:
 - Earlier private hosting configuration is excluded from the public branch history. Local environment files, hosting account metadata, logs and build output are ignored. Only `public/` is configured for hosting.
 - Source links point to RisingOrchards/gopro-timecode and production links to timecode.igorbox.com. The optional GitHub Pages workflow runs only when manually requested; Vercel configuration contains no account or domain credentials.
 
-These are software checks. The project owner separately reported successful QR acceptance on a stock MISSION 1; no measured camera alignment, MovieSlate session recording, MP4 sample, Premiere import or display latency was supplied. Browser interaction/visual QA was not performed. See `HARDWARE_VALIDATION.md` for the remaining measured acceptance work.
+These are software checks. The project owner separately reported successful QR acceptance on a stock MISSION 1; no measured camera alignment, MovieSlate session recording, MP4 sample, Premiere import or display latency was supplied. The screenshot confirms the displayed app state, not camera sync accuracy or a complete browser workflow test. See `HARDWARE_VALIDATION.md` for the remaining measured acceptance work.
 
 To reproduce the shipped dependency-free checks:
 

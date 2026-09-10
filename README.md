@@ -6,6 +6,10 @@ Source: [RisingOrchards/gopro-timecode](https://github.com/RisingOrchards/gopro-
 
 A small, static GoPro precision date/time QR utility with **Device Clock** and manual **Jam** modes. No framework, build dependencies, backend, pairing, analytics or CDN. One vendored MIT QR encoder. The software is MIT licensed.
 
+![IgorBox Timecode in dark mode, showing Device Clock at 30 fps and the live GoPro time QR](docs/images/app-screenshot.jpg)
+
+*Preview image only. Open [timecode.igorbox.com](https://timecode.igorbox.com/) to scan a current, animated QR.*
+
 The app and documentation use a dark theme, a black header and a locally bundled IgorBox logo. The animated QR retains black modules and a white quiet zone for scanning. Branding can be replaced in `public/assets/igorbox-logo.png` and the two HTML headers; logo rights are separate from the code's MIT license.
 
 **Status: v0.1.0, documentation verified on 2026-09-09.** The project owner reports successful QR acceptance on a new, out-of-the-box MISSION 1 with stock firmware; **GoPro Labs installation is not required for that workflow**. The exact stock firmware version was not recorded. Recorded timecode accuracy and drift remain to be measured. The app uses the viewing device's clock or a manually matched reference; it does not receive LTC or automatically follow an external source.
