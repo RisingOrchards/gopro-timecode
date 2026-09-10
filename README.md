@@ -2,7 +2,7 @@
 
 **Use the app: [timecode.igorbox.com](https://timecode.igorbox.com/)**
 
-Source: [RisingOrchards/gopro-timecode](https://github.com/RisingOrchards/gopro-timecode). The production address is prepared for the upcoming Vercel deployment; this checkout currently runs locally.
+Source: [RisingOrchards/gopro-timecode](https://github.com/RisingOrchards/gopro-timecode). Hosted on Vercel.
 
 A small, static GoPro precision date/time QR utility with **Device Clock** and manual **Jam** modes. No framework, build dependencies, backend, pairing, analytics or CDN. One vendored MIT QR encoder. The software is MIT licensed.
 
@@ -116,11 +116,13 @@ Sources: Adobe’s [source timecode display](https://helpx.adobe.com/premiere/de
 
 All paths inside `public/` are relative, including the guide, so the app works below a repository path. Only deploy `public/`; the source, tests and hosting metadata need not be publicly served.
 
-### Vercel (prepared for later)
+### Vercel
 
-The included `vercel.json` selects no framework, skips package installation, validates the static files and publishes `public/`. Import [RisingOrchards/gopro-timecode](https://github.com/RisingOrchards/gopro-timecode) into Vercel, or run `vercel deploy` from this directory after signing in with Vercel CLI. Test with the project's `.vercel.app` address, then add **timecode.igorbox.com** in the Vercel project's domain settings and apply the DNS records Vercel provides. The HTML canonical URLs and package homepage already point to this production domain. See [Vercel deployment](https://vercel.com/docs/cli/deploying-from-cli) and [domains](https://vercel.com/docs/cli/domains).
+The production app is live at **[timecode.igorbox.com](https://timecode.igorbox.com/)** on Vercel. The included `vercel.json` selects no framework, skips package installation, validates the static files and publishes `public/`.
 
-Pages request `noindex, nofollow`, and `robots.txt` discourages crawling for a discreet test deployment. These are indexing preferences, not authentication: anyone with a public URL can still open it. No Vercel deployment or domain connection has been performed for this release; the app is running locally.
+To deploy your own copy, import your repository into Vercel or run `vercel deploy` from this directory after signing in with Vercel CLI. Test with the project's `.vercel.app` address, then add your domain in the Vercel project settings and apply the DNS records Vercel provides. Update the HTML canonical URLs and package homepage for a separately hosted fork. See [Vercel deployment](https://vercel.com/docs/cli/deploying-from-cli) and [domains](https://vercel.com/docs/cli/domains).
+
+Pages request `noindex, nofollow`, and `robots.txt` discourages crawling for a discreet deployment. These are indexing preferences, not authentication: anyone with the public URL can open the app.
 
 ### GitHub Pages
 
