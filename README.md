@@ -10,7 +10,7 @@ A small, static GoPro precision date/time QR utility with **Device Clock** and m
 
 *Preview image only. Open [timecode.igorbox.com](https://timecode.igorbox.com/) to scan a current, animated QR.*
 
-The app and documentation use a dark theme, a black header and a locally bundled IgorBox logo. The animated QR retains black modules and a white quiet zone for scanning. Branding can be replaced in `public/assets/igorbox-logo.png` and the two HTML headers; logo rights are separate from the code's MIT license.
+The app and documentation use IgorBox's forest green and warm charcoal palette, a black header and the locally bundled silver logo. Button shades are adjusted for readable contrast. The animated QR retains black modules and a white quiet zone for scanning. Branding can be replaced in `public/assets/igorbox-logo.png` and the two HTML headers; logo rights are separate from the code's MIT license.
 
 **Status: v0.1.0, documentation verified on 2026-09-09.** The project owner reports successful QR acceptance on a new, out-of-the-box MISSION 1 with stock firmware; **GoPro Labs installation is not required for that workflow**. The exact stock firmware version was not recorded. Recorded timecode accuracy and drift remain to be measured. The app uses the viewing device's clock or a manually matched reference; it does not receive LTC or automatically follow an external source.
 
@@ -122,7 +122,20 @@ The production app is live at **[timecode.igorbox.com](https://timecode.igorbox.
 
 To deploy your own copy, import your repository into Vercel or run `vercel deploy` from this directory after signing in with Vercel CLI. Test with the project's `.vercel.app` address, then add your domain in the Vercel project settings and apply the DNS records Vercel provides. Update the HTML canonical URLs and package homepage for a separately hosted fork. See [Vercel deployment](https://vercel.com/docs/cli/deploying-from-cli) and [domains](https://vercel.com/docs/cli/domains).
 
-Pages request `noindex, nofollow`, and `robots.txt` discourages crawling for a discreet deployment. These are indexing preferences, not authentication: anyone with the public URL can open the app.
+Pages request `noindex, nofollow` for a discreet deployment. `robots.txt` allows crawlers to read the sharing metadata, images and indexing instructions. These are indexing preferences, not authentication: anyone with the public URL can open the app. See [Google's noindex guidance](https://developers.google.com/search/docs/crawling-indexing/block-indexing).
+
+### Link previews and share images
+
+Both pages include [Open Graph metadata](https://ogp.me/) and an X/Twitter large-image card, with absolute production URLs and image descriptions. The same assets can be shared manually:
+
+- [Landscape card, 1200 × 630](public/assets/og-image.png) — used for automatic link previews.
+- [Square share card, 1080 × 1080](public/assets/share-card.png) — for image posts and other square placements.
+
+The artwork's QR opens **https://timecode.igorbox.com/**; it contains no camera clock-setting command. The animated QR inside the app performs time sync.
+
+Editable artwork is in `docs/social/`. Run `node scripts/social-card.cjs` to regenerate both SVGs using the existing logo and vendored QR encoder. To also regenerate PNGs, use `--png` in a tooling environment with `sharp` installed. PNGs are checked in, so ordinary builds and hosting require no image tooling or added dependencies. The layout uses system sans-serif fonts; it does not bundle IgorBox's website font.
+
+Link previews become available after these files are pushed and deployed. Platforms may cache a previous preview; a cached result does not update until that platform fetches it again. The included static check validates page metadata, local image existence and PNG dimensions; platform-specific preview rendering must be checked after deployment.
 
 ### GitHub Pages
 

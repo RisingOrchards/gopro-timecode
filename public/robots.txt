@@ -1,2 +1,4 @@
+# Allow link previews to read page metadata and social images.
+# Search indexing remains disabled by the noindex meta and HTTP headers.
 User-agent: *
-Disallow: /
+Allow: /

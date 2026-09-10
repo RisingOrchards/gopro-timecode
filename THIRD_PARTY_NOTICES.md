@@ -5,6 +5,7 @@
 - Supplied by the project owner for the app's branding; bundled unchanged in `public/assets/igorbox-logo.png`.
 - Source: https://assets.igorbox.cloud/main-igorbox-silver-metal-letters.png
 - The code's MIT license does not grant rights to the IgorBox logo or trademark. Replace this asset and the brand text when publishing a separately branded fork.
+- The same branding exception applies to the logo within app screenshots and social cards. The artwork generator and original layout code are MIT licensed.
 
 ## qrcode-generator 1.4.4
 
