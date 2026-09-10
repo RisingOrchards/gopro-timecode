@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An open-source GoPro precision-time QR utility. Use your device clock or jam an external timecode reference.">
+  <meta name="theme-color" content="#000000">
+  <meta name="robots" content="noindex, nofollow">
+  <title>IgorBox Timecode · MISSION 1 QR sync</title>
+  <link rel="canonical" href="https://timecode.igorbox.com/">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./vendor/qrcode.js"></script>
+  <script defer src="./core.js"></script>
+  <script defer src="./qr.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#setup">Skip to controls</a>
+  <header class="topbar">
+    <a class="brand" href="./"><img class="brand-logo" src="./assets/igorbox-logo.png" width="921" height="175" alt="IgorBox"> <span class="brand-sub">/ Timecode</span></a>
+    <nav aria-label="Main navigation"><a class="open-label" href="https://github.com/RisingOrchards/gopro-timecode" target="_blank" rel="noopener noreferrer">OPEN SOURCE</a><a href="./guide.html">Documentation <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">MISSION 1 · TIMECODE SYNC</p><h1>One reference. Every camera.</h1><p>Use your device clock or jam a reference, then scan each camera.</p></div><span class="test-label">v0.1 · Accuracy validation pending</span></div>
+    <div class="workspace">
+      <section id="setup" class="setup" aria-labelledby="setup-title">
+        <div class="section-title"><span class="step">01</span><h2 id="setup-title">Set the reference</h2></div>
+        <form id="reference-form">
+          <label for="capture-rate">Camera capture rate</label>
+          <select id="capture-rate" name="capture-rate"><option value="23.976">23.976 fps</option><option value="24">24 fps</option><option value="25">25 fps</option><option value="29.97">29.97 fps</option><option value="30" selected>30 fps</option><option value="50">50 fps</option><option value="59.94">59.94 fps</option><option value="60">60 fps</option><option value="100">100 fps</option><option value="119.88">119.88 fps</option><option value="120">120 fps</option><option value="200">200 fps</option><option value="239.76">239.76 fps</option><option value="240">240 fps</option></select>
+          <p class="hint">MISSION 1 modes through 240 fps, including fractional rates. Available modes depend on model and resolution.</p>
+          <p class="hint" id="capture-note">30 fps capture · 1 capture frame per timecode frame.</p>
+          <label for="source">Reference source</label>
+          <select id="source" aria-describedby="source-hint"><option value="device" selected>Device Clock</option><option value="manual">Jam</option></select>
+          <p class="hint" id="source-hint">Device Clock uses this device’s time. Jam lets you manually match another timecode readout.</p>
+          <div id="manual-fields" hidden>
+            <label for="rate">Source Timecode Rate</label>
+            <select id="rate" name="rate" disabled><option value="23.976">23.976 NDF</option><option value="24">24</option><option value="25">25</option><option value="29.97">29.97 NDF</option><option value="30" selected>30</option><option value="50">50</option><option value="59.94">59.94 NDF</option><option value="60">60</option></select>
+            <div class="field-pair"><div><label for="reference-date">Reference date</label><input id="reference-date" type="date" min="2000-01-01" max="2099-12-31"></div><div><label for="reference-tc">Reference timecode</label><input id="reference-tc" type="text" placeholder="13:00:00:00" maxlength="11" autocomplete="off" spellcheck="false" aria-describedby="match-hint"></div></div>
+            <p id="match-hint" class="hint">Enter an upcoming value. Press “Jam now” when your source reaches it. Manual matching includes your reaction time.</p>
+          </div>
+          <label for="zone">Production UTC offset</label>
+          <select id="zone" aria-describedby="zone-hint"></select>
+          <p id="zone-hint" class="hint">Includes daylight saving time. Held fixed for this session.</p>
+          <label for="offset">Reference offset <span class="unit">milliseconds</span></label>
+          <div class="offset-row"><button id="minus-frame" type="button" aria-label="Subtract one timecode frame">−1f</button><input id="offset" type="number" min="-86400000" max="86400000" step="0.001" value="0" inputmode="decimal"><button id="plus-frame" type="button" aria-label="Add one timecode frame">+1f</button></div>
+          <p class="hint">Positive moves the reference ahead. One timecode frame = <span id="frame-length">33.333</span> ms.</p>
+          <button class="secondary apply" id="apply" type="submit">Apply reference</button>
+          <p id="reference-status" class="form-status" role="status">Using device clock.</p>
+        </form>
+        <aside class="rate-note" id="rate-note">Device Clock displays time at 30 fps. The QR sends date and time; it does not change the camera’s frame rate.</aside>
+      </section>
+      <section class="jam-panel" id="jam-panel" aria-labelledby="jam-title">
+        <div class="section-title"><span class="step">02</span><h2 id="jam-title">Jam the cameras</h2><span class="signal" id="signal">QR OFF</span></div>
+        <div class="tc-display"><p class="eyebrow">REFERENCE TIMECODE <span id="rate-label">30</span></p><output id="timecode" aria-label="Reference timecode">--:--:--:--</output><p id="clock-detail">Reading clock…</p></div>
+        <div class="qr-stage" id="qr-stage">
+          <canvas id="qr" width="592" height="592" hidden role="img" aria-label="Live GoPro precision-time QR code"></canvas>
+          <div id="qr-placeholder"><span class="viewfinder" aria-hidden="true">＋</span><strong id="placeholder-title">Ready when you are</strong><p id="placeholder-text">Check the reference, then start the QR.</p></div>
+        </div>
+        <p id="scan-status" role="status">Camera confirmation appears on the camera.</p>
+        <div class="jam-actions"><button id="toggle" class="primary" type="button">Start QR <span aria-hidden="true">→</span></button><button id="fullscreen" class="secondary" type="button">Enlarge</button></div>
+        <div class="scan-meta"><span id="refresh-rate">QR hidden</span><span id="wake-status">Keep this screen awake</span></div>
+        <details class="payload"><summary>Inspect QR command</summary><code id="payload">Start the QR to see its current payload.</code><p>Precision date/time only. No camera mode, record, or calibration commands.</p></details>
+      </section>
+    </div>
+    <section class="field-notes" aria-label="Before you roll"><div><span class="step">03</span><h2>Before you roll</h2></div><p><strong>Scan while idle.</strong> Point your MISSION 1 at the live QR, wait for its acknowledgment, then move to the next camera.</p><p><strong>Slate the take.</strong> Jam sync is a starting reference. It does not lock shutters or prevent clock drift. <a href="./guide.html#validation">Run a sync test ↗</a></p></section>
+  </main>
+  <footer><span>IgorBox Timecode · MIT licensed</span><span>Runs on this device · No account or uploads</span><a href="https://github.com/RisingOrchards/gopro-timecode" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="https://gopro.github.io/labs/control/precisiontime/" target="_blank" rel="noopener noreferrer">GoPro’s reference tool ↗</a></footer>
+  <noscript><p class="noscript">Enable JavaScript to generate the animated time QR.</p></noscript>
+</body>
+</html>

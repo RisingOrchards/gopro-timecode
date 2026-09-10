@@ -1,0 +1,16 @@
+{
+  "name": "igorbox-timecode",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Client-only GoPro Labs precision time QR utility with Device Clock and manual Jam modes",
+  "repository": { "type": "git", "url": "https://github.com/RisingOrchards/gopro-timecode.git" },
+  "homepage": "https://timecode.igorbox.com/",
+  "bugs": { "url": "https://github.com/RisingOrchards/gopro-timecode/issues" },
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node scripts/serve.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "build": "node scripts/build.cjs"
+  }
+}
