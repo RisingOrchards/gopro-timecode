@@ -1,0 +1,149 @@
+/* IgorBox Timecode — MIT. Camera form state and DOM only; no timecode lifecycle changes. */
+(function () {
+  'use strict';
+  const C = window.IgorCameraCapabilities, P = window.IgorCameraPresets, G = window.IgorCamera;
+  const $ = id => document.getElementById(id);
+  const key = 'igorbox.camera-settings.v1';
+  let model = 'mission-1-pro', settings = P.resolve('cinema', model), preset = 'cinema';
+  let videoDraft = null, command = '', expanded = false;
+  const controls = Object.fromEntries(Object.keys(C.options).map(name => [name, $('setting-' + name)]));
+  function option(select, value, label) {
+    const item = document.createElement('option'); item.value = value; item.textContent = label; select.append(item);
+  }
+  Object.entries(C.models).forEach(([id, item]) => option($('camera-model'), id, item.label));
+  Object.entries(P.definitions).forEach(([id, item]) => option($('camera-preset'), id, item.label));
+  for (const [name, select] of Object.entries(controls)) {
+    option(select, '', 'Leave unchanged');
+    Object.entries(C.options[name]).forEach(([value, [label]]) => option(select, value, label));
+  }
+  function hideQR(message = 'Settings changed. Generate a new QR.') {
+    command = '';
+    $('camera-qr').hidden = true; $('camera-placeholder').hidden = false;
+    $('camera-copy').disabled = true; $('camera-fullscreen').disabled = !expanded;
+    $('camera-command').textContent = 'Generate a QR to see the command.';
+    $('camera-copy-status').textContent = '';
+    $('camera-signal').textContent = 'QR OFF'; $('camera-signal').classList.remove('live');
+    $('camera-scan-status').textContent = message;
+  }
+  function save() {
+    try {
+      if ($('camera-remember').checked && !G.validate(settings, model).length) {
+        localStorage.setItem(key, G.encodeState(settings, model));
+        $('camera-storage-status').textContent = 'Saved locally. The QR stays off when you return.';
+      } else {
+        localStorage.removeItem(key);
+        $('camera-storage-status').textContent = $('camera-remember').checked ? 'Fix the settings to save this form.' : '';
+      }
+    } catch (_) { $('camera-storage-status').textContent = 'Local storage is unavailable. You can still generate a QR.'; }
+  }
+  function render() {
+    $('camera-model').value = model; $('camera-preset').value = preset;
+    $('camera-mode').value = settings.mode;
+    $('preset-description').textContent = preset === 'custom' ? 'All fields remain editable. Leave unchanged omits a setting from the QR.' : P.definitions[preset].description;
+    for (const [name, select] of Object.entries(controls)) select.value = settings[name] ?? '';
+    for (const item of controls.resolution.options) item.disabled = !!item.value && !Object.hasOwn(C.models[model].modes, item.value);
+    for (const item of controls.frameRate.options) item.disabled = !!item.value && !!settings.resolution && !C.models[model].modes[settings.resolution]?.includes(item.value);
+    for (const item of controls.colorProfile.options) item.disabled = item.value === 'log2' && settings.bitDepth !== '10';
+    for (const item of controls.stabilization.options) item.disabled = ['on', 'auto'].includes(item.value) && !C.stabilizationCovered(settings);
+    const photo = settings.mode === 'photo';
+    for (const id of ['camera-video-fields', 'camera-shutter-field', 'camera-shutter-hint', 'camera-stabilization-field', 'camera-video-advanced']) $(id).hidden = photo;
+    $('camera-photo-fields').hidden = !photo;
+    $('camera-ils-label').hidden = photo || !C.models[model].ils;
+    $('camera-ils-lens').checked = settings.ilsLens === true;
+    $('camera-iso-label').textContent = settings.isoMode === 'fixed' ? 'Fixed ISO (min = max)' : 'ISO maximum';
+    $('camera-shutter-hint').textContent = G.shutterHint(settings);
+    $('camera-firmware-note').textContent = 'Documentation baseline: ' + C.models[model].firmware + '.';
+    const errors = G.validate(settings, model);
+    $('camera-form-status').textContent = errors.join(' ') || 'Ready to generate. Review the camera acknowledgment after scanning.';
+    $('camera-form-status').classList.toggle('error', errors.length > 0);
+    $('camera-generate').disabled = errors.length > 0;
+    $('camera-summary').textContent = C.models[model].label + ' · ' + (photo ? 'Photo' : [C.options.resolution[settings.resolution]?.[0], settings.frameRate && settings.frameRate + ' fps mode', C.options.colorProfile[settings.colorProfile]?.[0]].filter(Boolean).join(' · ') || 'Video');
+  }
+  function changed() { hideQR(); render(); save(); }
+  for (const [name, select] of Object.entries(controls)) select.addEventListener('change', () => {
+    settings[name] = select.value || null;
+    if (name === 'isoMode' && settings.isoMode == null) settings.isoMax = null;
+    if (name === 'isoMode' && settings.isoMode != null && settings.isoMax == null) settings.isoMax = '400';
+    preset = 'custom'; changed();
+  });
+  $('camera-model').addEventListener('change', () => {
+    model = $('camera-model').value;
+    settings.ilsLens = false; videoDraft = null;
+    if (preset !== 'custom') settings = P.resolve(preset, model);
+    changed();
+  });
+  $('camera-preset').addEventListener('change', () => {
+    preset = $('camera-preset').value; settings = P.resolve(preset, model); videoDraft = null; changed();
+  });
+  $('camera-mode').addEventListener('change', () => {
+    if ($('camera-mode').value === 'photo') {
+      videoDraft = { ...settings };
+      settings = { ...P.resolve('custom', model), mode: 'photo', whiteBalance: settings.whiteBalance };
+    } else settings = videoDraft || P.resolve('custom', model);
+    preset = 'custom'; changed();
+  });
+  $('camera-ils-lens').addEventListener('change', () => { settings.ilsLens = $('camera-ils-lens').checked; changed(); });
+  $('camera-remember').addEventListener('change', save);
+  $('camera-reset').addEventListener('click', () => {
+    preset = 'cinema'; settings = P.resolve(preset, model); videoDraft = null;
+    $('camera-remember').checked = false; changed();
+  });
+  $('camera-form').addEventListener('submit', event => {
+    event.preventDefault(); hideQR();
+    try {
+      const next = G.buildGoProCommand(settings, model);
+      window.IgorQR.render($('camera-qr'), next, window.qrcode, 0);
+      command = next; $('camera-command').textContent = command;
+      $('camera-qr').hidden = false; $('camera-placeholder').hidden = true;
+      $('camera-copy').disabled = false; $('camera-fullscreen').disabled = false;
+      $('camera-signal').textContent = 'SETTINGS'; $('camera-signal').classList.add('live');
+      $('camera-scan-status').textContent = 'Scan while idle, wait for acknowledgment, then check your camera’s settings.';
+      save(); $('camera-qr-panel').scrollIntoView({ block: 'start', behavior: 'instant' }); $('camera-qr-panel').focus({ preventScroll: true });
+    } catch (error) {
+      hideQR('QR could not be generated.'); $('camera-form-status').textContent = error.message; $('camera-form-status').classList.add('error');
+    }
+  });
+  $('camera-copy').addEventListener('click', async () => {
+    const copied = command; if (!copied) return;
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(copied);
+      if (command === copied) $('camera-copy-status').textContent = 'Command copied.';
+    } catch (_) {
+      if (command !== copied) return;
+      const selection = window.getSelection(), range = document.createRange();
+      range.selectNodeContents($('camera-command')); selection.removeAllRanges(); selection.addRange(range);
+      $('camera-copy-status').textContent = 'Command selected. Use your device’s Copy action.';
+    }
+  });
+  function fullscreenState() {
+    expanded = document.fullscreenElement === $('camera-qr-panel') || $('camera-qr-panel').classList.contains('expanded');
+    $('camera-fullscreen').textContent = expanded ? 'Exit full screen' : 'Full screen QR';
+    $('camera-fullscreen').disabled = !command && !expanded;
+  }
+  async function closeFullScreen() {
+    if (document.fullscreenElement === $('camera-qr-panel')) await document.exitFullscreen();
+    $('camera-qr-panel').classList.remove('expanded'); fullscreenState();
+  }
+  $('camera-fullscreen').addEventListener('click', async () => {
+    if (expanded) { await closeFullScreen(); return; }
+    if (!command) return;
+    try {
+      if (!$('camera-qr-panel').requestFullscreen) throw new Error('Fullscreen unavailable');
+      await $('camera-qr-panel').requestFullscreen();
+    } catch (_) { $('camera-qr-panel').classList.add('expanded'); }
+    fullscreenState();
+  });
+  document.addEventListener('fullscreenchange', fullscreenState);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && expanded) closeFullScreen(); });
+  document.querySelector('.settings-qr-panel a[href="#camera-form"]').addEventListener('click', () => { if (expanded) closeFullScreen(); });
+  window.addEventListener('pageshow', event => { if (event.persisted) hideQR('Returned to settings. Generate a QR when ready.'); });
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const restored = G.decodeState(saved); model = restored.model; settings = restored.settings; preset = 'custom';
+      $('camera-remember').checked = true; $('camera-storage-status').textContent = 'Restored local settings. Review before generating.';
+    }
+  } catch (_) { $('camera-storage-status').textContent = 'Saved settings could not be restored. Using the starting preset.'; }
+  render();
+})();

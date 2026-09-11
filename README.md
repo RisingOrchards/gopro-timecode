@@ -4,7 +4,7 @@
 
 Source: [RisingOrchards/gopro-timecode](https://github.com/RisingOrchards/gopro-timecode). Hosted on Vercel.
 
-A small, static GoPro precision date/time QR utility with **Device Clock** and manual **Jam** modes. No framework, build dependencies, backend, pairing, analytics or CDN. One vendored MIT QR encoder. The software is MIT licensed.
+A small, static GoPro utility with two tools: **Timecode QR** (Device Clock or manual Jam) and **Camera Settings QR** (editable MISSION presets). No framework, build dependencies, backend, pairing, analytics or CDN. One vendored MIT QR encoder. The software is MIT licensed.
 
 ![IgorBox Timecode in dark mode, showing Device Clock at 30 fps and the live GoPro time QR](docs/images/app-screenshot.jpg)
 
@@ -12,7 +12,7 @@ A small, static GoPro precision date/time QR utility with **Device Clock** and m
 
 The app and documentation use IgorBox's forest green and warm charcoal palette, a black header and the locally bundled silver logo. Button shades are adjusted for readable contrast. The animated QR retains black modules and a white quiet zone for scanning. Branding can be replaced in `public/assets/igorbox-logo.png` and the two HTML headers; logo rights are separate from the code's MIT license.
 
-**Status: v0.1.0 · Field tested on a real MISSION 1 shoot.** On 2026-09-11, the project owner confirmed that the utility was used for a shoot and “worked perfectly.” Earlier testing also confirmed QR acceptance on a new, out-of-the-box MISSION 1 with stock firmware; **GoPro Labs installation is not required for that workflow**. See the [field report](docs/HARDWARE_VALIDATION.md) for the reported results and a procedure for measuring offset and drift with your own setup.
+**Timecode status: v0.1.0 · Field tested on a real MISSION 1 shoot.** On 2026-09-11, the project owner confirmed that the utility was used for a shoot and “worked perfectly.” Earlier testing also confirmed QR acceptance on a new, out-of-the-box MISSION 1 with stock firmware; **GoPro Labs installation is not required for that timecode workflow**. See the [field report](docs/HARDWARE_VALIDATION.md) for the reported results and a procedure for measuring offset and drift with your own setup.
 
 The app uses the viewing device's clock or a manually matched reference; it does not receive LTC or automatically follow an external source. Protocol documentation was verified on 2026-09-09.
 
@@ -32,6 +32,24 @@ No package installation is required. `npm start` and `npm test` are aliases. The
 The local server listens on all IPv4 interfaces (`0.0.0.0`) and prints its network addresses. To open it on an iPad on the same network, use the computer's LAN address and port 4173. The ordinary HTTP LAN page supports the current QR workflow; browser features that require HTTPS, such as wake lock or a future audio input, may be unavailable there.
 
 ## Quick workflow
+
+Use the **Timecode QR** tab for the clock workflow below. Use **Camera Settings QR** to configure capture settings first, then return to Timecode QR to jam.
+
+## Camera Settings QR
+
+[Open Camera Settings QR](https://timecode.igorbox.com/settings.html). Choose MISSION 1, MISSION 1 PRO or MISSION 1 PRO ILS, pick a starting preset, then edit any field. Generate displays a large static QR and the exact command. Copy Command, Reset and fullscreen are included; changing settings clears the previous QR. Optional Remember settings stores the form locally and always restores with the QR off.
+
+Presets: **Production / Cinema**, **Run & Gun**, **Slow Motion**, **High Frame Rate** and **Custom**. Cinema starts at 8K Open Gate / 24 on PRO models (4K Open Gate on MISSION 1); the other configured presets start at 4K30, 4K60 and 4K120. Each uses 10-bit GP-Log2, High bitrate and Low sharpness. Fields remain editable.
+
+[Preview the Camera Settings QR screen](docs/images/camera-settings.png).
+
+Supported video controls include resolution/aspect, rate modes through 240, depth, color, Standard/High bitrate, shutter angle, ISO ceiling or fixed ISO, discrete WB, sharpness, EV, HyperSmooth and denoise. Photo offers mode, RAW, WB and EV. Compatibility validation checks the model, resolution/rate pairs, GP-Log2 depth, ISO/shutter/EV interactions and ILS lens requirements. The new settings tool has documented command support and software/browser tests; its camera scan acceptance is separate from the field-tested timecode tool.
+
+**Key differences from camera-menu shorthand:** 24/30/60 mode labels follow existing camera timing and may be fractional. Shutter uses documented angles, not direct speed extensions. WB includes 5500K rather than an invented 5600K command. Independent ISO minimum, Max/custom Mbps and unverified stabilization combinations are omitted. Use current model-specific Labs firmware as the documented settings baseline; stock timecode acceptance does not establish every settings command.
+
+See [camera-settings research, preset commands and omissions](docs/CAMERA_SETTINGS.md) and the [usage guide](public/guide.html#camera-settings). Reset restores the local form; it sends no camera-reset command. No backend or new package dependency is added.
+
+## Timecode workflow
 
 **Defaults:** Device Clock, 30 fps camera capture and a 30 fps reference display. **Source Timecode Rate** appears only when **Jam** is selected and initially uses 30. Device Clock always displays at 30 fps; switching back from Jam does not retain a hidden source rate. The camera capture selector includes 24, 25, 30, 50, 60, 100, 120, 200 and 240 fps mode families, with fractional choices 23.976, 29.97, 59.94, 119.88 and 239.76. For 8K/60, choose your actual 60 or 59.94 capture mode. Available modes depend on model and resolution; see [GoPro’s specs](https://gopro.com/en/us/shop/buy-cameras/mission-1-series).
 
@@ -156,6 +174,11 @@ The optional `node scripts/build.cjs` produces a plain `dist/` copy for hosts th
 public/                 Deploy this directory; also opens directly
   index.html            Working surface
   app.js                UI and timing lifecycle
+  settings.html         Camera Settings QR tool
+  settings-app.js       Camera form and local state
+  settings-core.js      Pure settings validation and command generation
+  settings-presets.js   Editable starter preset data
+  settings-capabilities.js  Model tables and command allowlists
   core.js               Pure reference/timecode/payload math
   qr.js                 Canvas renderer
   guide.html            Offline documentation
@@ -175,4 +198,4 @@ The software and original documentation are released under the **MIT License**. 
 
 The supplied IgorBox logo and trademark are excluded from the software license. Replace branding for separately branded forks. GoPro firmware/docs are not bundled or relicensed. This project is not endorsed by GoPro, MovieSlate/PureBlend Software or Adobe.
 
-No credentials, deployment account identifiers or environment files are required. Keep local credentials and hosting metadata out of commits; `.gitignore` excludes `.env*`, `.vercel/`, `.openai/` and logs. Deploy only `public/`, which contains the app, documentation and local assets. The app makes no network requests for timecode and stores no calibration or personal data.
+No credentials, deployment account identifiers or environment files are required. Keep local credentials and hosting metadata out of commits; `.gitignore` excludes `.env*`, `.vercel/`, `.openai/` and logs. Deploy only `public/`, which contains both tools, documentation and local assets. The app makes no network requests for timecode and stores no calibration or personal data. Camera form settings are saved in local storage only when Remember settings is enabled; Reset clears that saved form.

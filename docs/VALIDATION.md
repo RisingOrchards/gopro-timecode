@@ -1,5 +1,17 @@
 # Software validation — 2026-09-09
 
+## Camera Settings QR extension — 2026-09-11
+
+- All **34** Node tests passed, including the original 23 timecode tests and 11 settings tests. Settings checks cover explicit preset command fixtures, model/resolution/rate limits, GP-Log2 depth, ISO/shutter/EV rules, ILS lens confirmation, Photo isolation, per-field command changes, malformed stored state, command injection and QR quiet zones.
+- Static validation and build passed for all three pages, including settings scripts, navigation/assets, Open Graph metadata and unchanged vendored encoder checksum.
+- Playwright checks passed using installed Edge in headless mode at 1280, 390 and 320 pixels. They exercised every preset, editing, QR invalidation, model errors, Photo/Video transitions, opt-in storage/reload/reset, ILS confirmation, native fullscreen and the CSS fallback, clipboard API handling with a test sink and manual-copy fallback, and navigation back to a live timecode QR. No page errors or horizontal overflow were observed. Desktop and mobile captures were visually inspected. This is not a physical iPad/Safari test.
+- An independent jsQR decoder read **68** settings raster fixtures: five presets on three models, a longer advanced command and a Photo command, each at native size and 390, 280 and 220 pixels. All decoded strings matched the generated command.
+- No new application or build dependency was added. `scripts/check-browser.cjs` is optional and uses a separate Playwright tooling environment.
+
+These checks verify software output. Camera Settings QR has not yet received the hardware shoot validation recorded for Timecode QR. See [camera-settings research and omissions](CAMERA_SETTINGS.md) for the documented scope.
+
+## Original timecode release
+
 Completed locally before packaging:
 
 - 23 Node built-in tests passed: known payloads, timezone serialization, year/day rollovers, fractional-rate frame boundaries, inverse matching across all eight Jam source rates, capture rates through 240 independent of timecode, invalid input, NDF midnight limits, pause/background/restore behavior, clock changes, rendering errors and QR quiet zones. Mode-switch checks confirm Device Clock immediately restores live time and 30 fps after a Jam, including invalid input, without restarting the QR or retaining the hidden Jam rate.

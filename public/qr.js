@@ -4,8 +4,8 @@
   else root.IgorQR = factory();
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  function render(canvas, text, encoder) {
-    const code = encoder(3, 'M');
+  function render(canvas, text, encoder, version = 3) {
+    const code = encoder(version, 'M');
     code.addData(text, 'Byte');
     code.make();
     const count = code.getModuleCount(), quiet = 4, scale = 16;

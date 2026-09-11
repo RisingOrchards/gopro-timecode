@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build GoPro MISSION camera-settings QR codes from editable presets. Free, open-source and entirely on your device.">
+  <meta name="theme-color" content="#000000">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Camera Settings QR · IgorBox Timecode</title>
+  <link rel="canonical" href="https://timecode.igorbox.com/settings.html">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./vendor/qrcode.js"></script>
+  <script defer src="./qr.js"></script>
+  <script defer src="./settings-capabilities.js"></script>
+  <script defer src="./settings-presets.js"></script>
+  <script defer src="./settings-core.js"></script>
+  <script defer src="./settings-app.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="IgorBox Timecode">
+  <meta property="og:title" content="GoPro Camera Settings QR · IgorBox Timecode">
+  <meta property="og:description" content="Choose a preset, adjust your MISSION camera settings, and scan one QR. Free and open-source.">
+  <meta property="og:url" content="https://timecode.igorbox.com/settings.html">
+  <meta property="og:image" content="https://timecode.igorbox.com/assets/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="IgorBox Timecode with silver branding, green accents and an app link QR.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GoPro Camera Settings QR · IgorBox Timecode">
+  <meta name="twitter:description" content="Editable MISSION camera presets and transparent GoPro Labs QR commands, generated on your device.">
+  <meta name="twitter:image" content="https://timecode.igorbox.com/assets/og-image.png">
+  <meta name="twitter:image:alt" content="IgorBox Timecode with silver branding, green accents and an app link QR.">
+</head>
+<body>
+  <a class="skip" href="#camera-form">Skip to controls</a>
+  <header class="topbar">
+    <a class="brand" href="./"><img class="brand-logo" src="./assets/igorbox-logo.png" width="921" height="175" alt="IgorBox"> <span class="brand-sub">/ Timecode</span></a>
+    <nav aria-label="Main navigation"><a class="open-label" href="https://github.com/RisingOrchards/gopro-timecode" target="_blank" rel="noopener noreferrer">OPEN SOURCE</a><a href="./guide.html#camera-settings">Documentation ↗</a></nav>
+  </header>
+  <main>
+    <nav class="tool-tabs" aria-label="QR tools"><a href="./">Timecode QR</a><a href="./settings.html" aria-current="page">Camera Settings QR</a></nav>
+    <div class="intro"><div><p class="eyebrow">GOPRO LABS · MISSION SERIES</p><h1>Your settings. One scan.</h1><p>Start with a preset. Make it yours. Show the QR to your camera.</p></div><span class="test-label">Settings · Scan-test before use</span></div>
+    <div class="workspace settings-workspace">
+      <section class="setup" aria-labelledby="camera-title">
+        <div class="section-title"><span class="step">01</span><h2 id="camera-title">Camera settings</h2></div>
+        <form id="camera-form">
+          <label for="camera-preset">Preset</label><select id="camera-preset"></select>
+          <p class="hint" id="preset-description"></p>
+          <div class="settings-grid camera-context">
+            <div><label for="camera-model">Camera model</label><select id="camera-model"></select></div>
+            <div><label for="camera-mode">Capture mode</label><select id="camera-mode"><option value="video">Video</option><option value="photo">Photo</option></select></div>
+          </div>
+          <div id="camera-video-fields">
+            <div class="settings-grid">
+              <div><label for="setting-resolution">Resolution / aspect</label><select id="setting-resolution" data-setting="resolution"></select></div>
+              <div><label for="setting-frameRate">Frame rate</label><select id="setting-frameRate" data-setting="frameRate" aria-describedby="camera-rate-hint"></select></div>
+              <div><label for="setting-colorProfile">Color profile</label><select id="setting-colorProfile" data-setting="colorProfile"></select></div>
+              <div><label for="setting-bitDepth">Bit depth</label><select id="setting-bitDepth" data-setting="bitDepth"></select></div>
+            </div>
+            <p class="hint" id="camera-rate-hint">Rates follow camera timing (integer or fractional). Color / bit depth turns HLG off.</p>
+          </div>
+          <div id="camera-photo-fields" hidden>
+            <label for="setting-rawPhoto">Photo output</label><select id="setting-rawPhoto" data-setting="rawPhoto"></select>
+            <p class="hint">Photo mode supports output format, white balance and EV here. Set photo resolution, ISO and shutter on the camera.</p>
+          </div>
+          <div class="settings-grid">
+            <div><label for="setting-whiteBalance">White balance</label><select id="setting-whiteBalance" data-setting="whiteBalance"></select></div>
+            <div id="camera-shutter-field"><label for="setting-shutter">Shutter angle</label><select id="setting-shutter" data-setting="shutter" aria-describedby="camera-shutter-hint"></select></div>
+          </div>
+          <p class="hint" id="camera-shutter-hint"></p>
+          <div id="camera-stabilization-field">
+            <label for="setting-stabilization">HyperSmooth</label><select id="setting-stabilization" data-setting="stabilization"></select>
+            <p class="hint" id="camera-stabilization-hint">On/AutoBoost: 16:9 through 60 fps in this tool.</p>
+            <label class="check-label" id="camera-ils-label" hidden><input type="checkbox" id="camera-ils-lens"> ILS lens is a rectilinear prime</label>
+          </div>
+          <details class="settings-advanced" id="camera-advanced">
+            <summary>Exposure &amp; image controls</summary>
+            <div id="camera-video-advanced">
+              <div class="settings-grid">
+                <div><label for="setting-bitrate">Bitrate</label><select id="setting-bitrate" data-setting="bitrate"></select></div>
+                <div><label for="setting-sharpness">Sharpness</label><select id="setting-sharpness" data-setting="sharpness"></select></div>
+                <div><label for="setting-isoMode">ISO control</label><select id="setting-isoMode" data-setting="isoMode"></select></div>
+                <div><label for="setting-isoMax" id="camera-iso-label">ISO maximum</label><select id="setting-isoMax" data-setting="isoMax"></select></div>
+              </div>
+              <p class="hint" id="camera-iso-hint">Auto range sets the ceiling; the camera manages the minimum. Fixed ISO makes minimum and maximum equal. Independent minimum ISO is not supported here.</p>
+              <label for="setting-denoise">Noise reduction</label><select id="setting-denoise" data-setting="denoise"></select>
+            </div>
+            <label for="setting-ev">EV compensation</label><select id="setting-ev" data-setting="ev"></select>
+            <p class="hint" id="camera-ev-hint">Leave unchanged when using a manual shutter and an explicit ISO setting.</p>
+          </details>
+          <label class="check-label"><input id="camera-remember" type="checkbox"> Remember settings on this device</label>
+          <p id="camera-storage-status" class="hint"></p>
+          <p id="camera-form-status" class="form-status" role="status"></p>
+          <div class="settings-form-actions"><button id="camera-generate" class="primary" type="submit" disabled>Generate QR <span aria-hidden="true">→</span></button><button id="camera-reset" class="secondary" type="button">Reset</button></div>
+          <p class="hint">Reset restores the starting form. It does not reset a camera.</p>
+        </form>
+      </section>
+      <section class="jam-panel settings-qr-panel" id="camera-qr-panel" aria-labelledby="camera-qr-title" tabindex="-1">
+        <div class="section-title"><span class="step">02</span><h2 id="camera-qr-title">Scan settings</h2><span class="signal" id="camera-signal">QR OFF</span></div>
+        <p id="camera-summary" class="settings-summary">Select a preset and generate a QR.</p>
+        <div class="qr-stage">
+          <canvas id="camera-qr" width="592" height="592" hidden role="img" aria-label="GoPro Labs camera-settings QR code"></canvas>
+          <div class="qr-placeholder" id="camera-placeholder"><span class="viewfinder" aria-hidden="true">＋</span><strong>Ready to configure</strong><p>Review your settings, then generate the QR.</p></div>
+        </div>
+        <p class="settings-scan-status" id="camera-scan-status" role="status">Scan while idle. Confirmation appears on the camera.</p>
+        <div class="jam-actions"><button id="camera-fullscreen" class="secondary" type="button" disabled>Full screen QR</button><a class="secondary" href="#camera-form">Edit settings</a></div>
+        <div class="payload settings-payload"><p>GoPro Labs command</p><code id="camera-command">Generate a QR to see the command.</code><button class="secondary" id="camera-copy" type="button" disabled>Copy Command</button><p id="camera-copy-status" role="status"></p></div>
+        <p class="hint" id="camera-firmware-note"></p>
+        <p class="hint">Check applied settings before recording. Stock-firmware field testing covered Timecode QR.</p>
+        <a class="settings-doc-link" href="./guide.html#camera-settings">Supported settings &amp; limitations ↗</a>
+      </section>
+    </div>
+  </main>
+  <footer><span>IgorBox Timecode · MIT licensed</span><span>No account or uploads</span><a href="https://github.com/RisingOrchards/gopro-timecode">GitHub ↗</a><a href="https://gopro.github.io/labs/control/mission/">GoPro’s MISSION configurator ↗</a></footer>
+  <noscript><p class="noscript">Enable JavaScript to build camera-settings QR codes.</p></noscript>
+</body>
+</html>
