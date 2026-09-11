@@ -27,6 +27,76 @@ async function run() {
       await page.locator('#camera-preset').selectOption(id);
       await generate(G.buildGoProCommand(P.resolve(id, 'mission-1-pro'), 'mission-1-pro'));
     }
+    assert.equal(await page.locator('#target-resolution').inputValue(), '8k');
+    assert.equal(await page.locator('#target-frameRate').inputValue(), '24');
+    await page.locator('#target-resolution').selectOption('4k');
+    assert.equal(await page.locator('#camera-qr').isVisible(), false);
+    assert.equal(await page.locator('#camera-copy').isDisabled(), true);
+    await page.locator('#target-frameRate').selectOption('30');
+    for (const [id, command] of Object.entries({ cinema: 'mVr4p30e0d1hH0cLbHw55i4s180sL', run: 'mVr4p30e1d1hH0cLbHwAi16s0sL', custom: 'mVr4p30' })) {
+      await page.locator('#camera-preset').selectOption(id);
+      assert.match(await page.locator('#camera-capture-status').textContent(), /Matches your target/);
+      await generate(command);
+    }
+    await page.locator('#setting-whiteBalance').selectOption('3200');
+    await page.locator('#setting-frameRate').selectOption('25');
+    assert.match(await page.locator('#camera-capture-status').textContent(), /Custom override.*25 fps.*Target:.*30 fps/);
+    await page.locator('#target-frameRate').selectOption('24');
+    assert.equal(await page.locator('#setting-whiteBalance').inputValue(), '3200');
+    await generate('mVr4p24w32');
+    await page.locator('#camera-preset').selectOption('slow');
+    assert.match(await page.locator('#camera-capture-status').textContent(), /Slow Motion overrides your target/);
+    await page.locator('#target-resolution').selectOption('8k');
+    await page.locator('#target-frameRate').selectOption('30');
+    await generate('mVr4p60e0d1hH0cLbHw55i8s180sL');
+    await page.locator('#camera-remember').check();
+    await page.reload();
+    assert.equal(await page.locator('#target-resolution').inputValue(), '8k');
+    assert.equal(await page.locator('#target-frameRate').inputValue(), '30');
+    assert.equal(await page.locator('#camera-preset').inputValue(), 'slow');
+    assert.equal(await page.locator('#camera-qr').isVisible(), false);
+    await page.locator('#target-frameRate').selectOption('24');
+    await generate('mVr4p60e0d1hH0cLbHw55i8s180sL');
+    await page.locator('#camera-preset').selectOption('high');
+    await page.locator('#target-frameRate').selectOption('30');
+    assert.match(await page.locator('#camera-capture-status').textContent(), /High Frame Rate overrides your target/);
+    await generate('mVr4p120e0d1hH0cLbHw55i16s180sL');
+    await page.locator('#camera-mode').selectOption('photo');
+    await page.locator('#target-resolution').selectOption('4k');
+    assert.equal(await page.locator('#camera-preset').isDisabled(), true);
+    await generate('mPw55');
+    await page.locator('#camera-mode').selectOption('video');
+    assert.equal(await page.locator('#camera-preset').inputValue(), 'high');
+    await generate('mVr4p120e0d1hH0cLbHw55i16s180sL');
+    await page.locator('#camera-reset').click();
+    assert.equal(await page.locator('#target-resolution').inputValue(), '4k');
+    assert.equal(await page.locator('#target-frameRate').inputValue(), '30');
+    await generate('mVr4p30e0d1hH0cLbHw55i4s180sL');
+    await page.locator('#camera-mode').selectOption('photo');
+    await page.locator('#target-resolution').selectOption('8k');
+    await page.locator('#target-frameRate').selectOption('24');
+    await generate('mPw55');
+    await page.locator('#camera-mode').selectOption('video');
+    await generate('mVr8p24e0d1hH0cLbHw55i4s180sL');
+    await page.locator('#target-frameRate').selectOption('60');
+    await page.locator('#camera-model').selectOption('mission-1');
+    assert.equal(await page.locator('#target-frameRate').inputValue(), '60');
+    assert.equal(await page.locator('#camera-generate').isDisabled(), true);
+    assert.match(await page.locator('#camera-target-status').textContent(), /unavailable/);
+    await page.locator('#camera-preset').selectOption('slow');
+    await generate('mVr4p60e0d1hH0cLbHw55i8s180sL');
+    await page.locator('#target-frameRate').selectOption('24');
+    await page.locator('#target-resolution').selectOption('4k');
+    await page.locator('#target-frameRate').selectOption('120');
+    await page.locator('#camera-preset').selectOption('run');
+    assert.match(await page.locator('#camera-capture-status').textContent(), /HyperSmooth is Off/);
+    await generate('mVr4p120e0d1hH0cLbHwAi16s0sL');
+    // Incompatible changes keep the requested rate and block QR generation.
+    await page.locator('#target-resolution').selectOption('8k');
+    assert.equal(await page.locator('#target-frameRate').inputValue(), '120');
+    assert.equal(await page.locator('#camera-generate').isDisabled(), true);
+    await page.locator('#target-frameRate').selectOption('24');
+    await page.locator('#camera-model').selectOption('mission-1-pro');
     await page.locator('#camera-preset').selectOption('cinema');
     await generate('mVr8p24e0d1hH0cLbHw55i4s180sL');
     await page.locator('#setting-whiteBalance').selectOption('3200');
@@ -60,7 +130,7 @@ async function run() {
     await page.locator('#setting-stabilization').selectOption('on');
     assert.equal(await page.locator('#camera-generate').isDisabled(), true);
     await page.locator('#camera-ils-lens').check();
-    await generate('mVr8p30e1d1hH0cLbHwAi16s0sL');
+    await generate('mVr8p24e1d1hH0cLbHwAi16s0sL');
     await page.locator('#camera-fullscreen').click();
     assert.equal(await page.locator('#camera-fullscreen').textContent(), 'Exit full screen');
     await page.locator('#camera-fullscreen').click();
@@ -73,7 +143,7 @@ async function run() {
     assert.equal(await page.locator('#camera-qr-panel').evaluate(element => element.classList.contains('expanded')), false);
     await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.testCopiedCommand = text; } } }));
     await page.locator('#camera-copy').click();
-    assert.equal(await page.evaluate(() => window.testCopiedCommand), 'mVr8p30e1d1hH0cLbHwAi16s0sL');
+    assert.equal(await page.evaluate(() => window.testCopiedCommand), 'mVr8p24e1d1hH0cLbHwAi16s0sL');
     // Exercise the clipboard fallback independently of platform clipboard permissions.
     await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined }));
     await page.locator('#camera-copy').click();
@@ -113,6 +183,14 @@ async function run() {
     await page.locator('#qr').waitFor({ state: 'visible' });
     await page.getByRole('link', { name: 'Camera Settings QR', exact: true }).click();
     assert.equal(await page.locator('#camera-qr').isVisible(), false);
+    await page.evaluate(() => localStorage.setItem('igorbox.camera-settings.v1', JSON.stringify({ version: 1, model: 'mission-1-pro', settings: window.IgorCameraPresets.resolve('cinema', 'mission-1-pro', { resolution: '4k', frameRate: '30' }) })));
+    await page.reload();
+    assert.equal(await page.locator('#target-resolution').inputValue(), '4k');
+    assert.equal(await page.locator('#target-frameRate').inputValue(), '30');
+    assert.equal(await page.locator('#camera-qr').isVisible(), false);
+    await generate('mVr4p30e0d1hH0cLbHw55i4s180sL');
+    await page.locator('#camera-preset').selectOption('run');
+    await generate('mVr4p30e1d1hH0cLbHwAi16s0sL');
     // Broken/crafted stored values cannot become a QR on reload.
     await page.evaluate(() => localStorage.setItem('igorbox.camera-settings.v1', '{"version":1,"model":"mission-1-pro","settings":{"mode":"video","resolution":"!FORMAT"}}'));
     await page.reload();
@@ -120,7 +198,7 @@ async function run() {
     assert.match(await page.locator('#camera-storage-status').textContent(), /could not be restored/);
     assert.equal(await page.locator('#camera-qr').isVisible(), false);
     assert.deepEqual(errors, []);
-    console.log('Browser checks passed: presets, edits, validation, photo/video, local storage, reset, ILS, fullscreen, copy fallback, mobile 390/320px and timecode navigation.');
+    console.log('Browser checks passed: capture targets, overrides, custom edits, validation, photo/video, storage migration, reset, ILS, fullscreen, copy fallback, mobile 390/320px and timecode navigation.');
   } finally { await browser.close(); }
 }
 run().catch(error => { console.error(error); process.exitCode = 1; });

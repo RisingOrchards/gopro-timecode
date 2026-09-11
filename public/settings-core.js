@@ -1,8 +1,8 @@
 /* IgorBox Timecode — MIT. Pure camera-settings validation and command generation. */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./settings-capabilities.js'));
-  else root.IgorCamera = factory(root.IgorCameraCapabilities);
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (C) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./settings-capabilities.js'), require('./settings-presets.js'));
+  else root.IgorCamera = factory(root.IgorCameraCapabilities, root.IgorCameraPresets);
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (C, P) {
   'use strict';
   const photoFields = new Set(['mode', 'whiteBalance', 'ev', 'rawPhoto', 'ilsLens']);
   const fields = new Set(['mode', 'ilsLens', ...Object.keys(C.options)]);
@@ -69,16 +69,26 @@
     return settings.shutter + '° ≈ 1/' + Number(speed.toFixed(2)) + ' second (nominal frame rate).';
   }
   // Strict, versioned local state. Restoring a form never restores a displayed QR.
-  function encodeState(settings, model) {
+  function encodeState(settings, model, target = P.defaultTarget, preset = 'custom') {
     buildGoProCommand(settings, model);
-    return JSON.stringify({ version: 1, model, settings });
+    P.validateTarget(target);
+    if (typeof preset !== 'string' || !Object.hasOwn(P.definitions, preset)) throw new Error('Unknown saved preset.');
+    return JSON.stringify({ version: 2, model, settings, target, preset });
   }
   function decodeState(text) {
     if (typeof text !== 'string' || text.length > 6000) throw new Error('Saved settings are too large.');
     const state = JSON.parse(text);
-    if (state?.version !== 1) throw new Error('Unsupported saved-settings version.');
+    if (![1, 2].includes(state?.version)) throw new Error('Unsupported saved-settings version.');
     buildGoProCommand(state.settings, state.model);
-    return { model: state.model, settings: { ...state.settings } };
+    // Existing saved forms retain their capture choices during the upgrade.
+    const target = state.version === 1
+      ? (state.settings.mode === 'video' && state.settings.resolution && state.settings.frameRate
+        ? { resolution: state.settings.resolution, frameRate: state.settings.frameRate } : P.defaultTarget)
+      : state.target;
+    const preset = state.version === 1 ? 'custom' : state.preset;
+    P.validateTarget(target);
+    if (typeof preset !== 'string' || !Object.hasOwn(P.definitions, preset)) throw new Error('Unknown saved preset.');
+    return { model: state.model, settings: { ...state.settings }, target: { ...target }, preset };
   }
   return { validate, components, buildGoProCommand, shutterHint, encodeState, decodeState };
 });

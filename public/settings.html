@@ -45,6 +45,14 @@
       <section class="setup" aria-labelledby="camera-title">
         <div class="section-title"><span class="step">01</span><h2 id="camera-title">Camera settings</h2></div>
         <form id="camera-form">
+          <fieldset class="camera-target">
+            <legend>Capture target</legend>
+            <div class="settings-grid">
+              <div><label for="target-resolution">Target resolution</label><select id="target-resolution" aria-describedby="camera-target-status"></select></div>
+              <div><label for="target-frameRate">Target frame rate</label><select id="target-frameRate" aria-describedby="camera-target-status camera-rate-hint"></select></div>
+            </div>
+            <p class="hint" id="camera-target-status" role="status"></p>
+          </fieldset>
           <label for="camera-preset">Preset</label><select id="camera-preset"></select>
           <p class="hint" id="preset-description"></p>
           <div class="settings-grid camera-context">
@@ -52,6 +60,7 @@
             <div><label for="camera-mode">Capture mode</label><select id="camera-mode"><option value="video">Video</option><option value="photo">Photo</option></select></div>
           </div>
           <div id="camera-video-fields">
+            <p class="camera-capture-status" id="camera-capture-status" role="status"></p>
             <div class="settings-grid">
               <div><label for="setting-resolution">Resolution / aspect</label><select id="setting-resolution" data-setting="resolution"></select></div>
               <div><label for="setting-frameRate">Frame rate</label><select id="setting-frameRate" data-setting="frameRate" aria-describedby="camera-rate-hint"></select></div>
@@ -96,7 +105,7 @@
           <p id="camera-storage-status" class="hint"></p>
           <p id="camera-form-status" class="form-status" role="status"></p>
           <div class="settings-form-actions"><button id="camera-generate" class="primary" type="submit" disabled>Generate QR <span aria-hidden="true">→</span></button><button id="camera-reset" class="secondary" type="button">Reset</button></div>
-          <p class="hint">Reset restores the starting form. It does not reset a camera.</p>
+          <p class="hint">Reset restores Cinema at your target and clears saved settings. It does not reset a camera.</p>
         </form>
       </section>
       <section class="jam-panel settings-qr-panel" id="camera-qr-panel" aria-labelledby="camera-qr-title" tabindex="-1">

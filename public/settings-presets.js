@@ -4,22 +4,32 @@
   else root.IgorCameraPresets = factory(root.IgorCameraCapabilities);
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (C) {
   'use strict';
+  const defaultTarget = Object.freeze({ resolution: '8k', frameRate: '24' });
   const definitions = Object.freeze({
-    cinema: Object.freeze({ label: 'Production / Cinema', description: '8K 16:9 · 24 fps mode · 180° shutter · 10-bit GP-Log2', settings: Object.freeze({ resolution: '8k', frameRate: '24', whiteBalance: '5500', shutter: '180', isoMax: '400', stabilization: 'off' }) }),
-    run: Object.freeze({ label: 'Run & Gun', description: '8K30 16:9 with automatic exposure, auto white balance and stabilization.', settings: Object.freeze({ resolution: '8k', frameRate: '30', whiteBalance: 'auto', shutter: 'auto', isoMax: '1600', stabilization: 'on' }) }),
+    cinema: Object.freeze({ label: 'Production / Cinema', description: 'Your target · 180° shutter · 5500K · 10-bit GP-Log2', settings: Object.freeze({ whiteBalance: '5500', shutter: '180', isoMax: '400', stabilization: 'off' }) }),
+    run: Object.freeze({ label: 'Run & Gun', description: 'Your target · auto exposure and white balance · 10-bit GP-Log2', settings: Object.freeze({ whiteBalance: 'auto', shutter: 'auto', isoMax: '1600', stabilization: 'on' }) }),
     slow: Object.freeze({ label: 'Slow Motion', description: '4K60 with 180° shutter (about 1/120 second).', settings: Object.freeze({ resolution: '4k', frameRate: '60', whiteBalance: '5500', shutter: '180', isoMax: '800', stabilization: 'off' }) }),
     high: Object.freeze({ label: 'High Frame Rate', description: '4K120 with 180° shutter (about 1/240 second).', settings: Object.freeze({ resolution: '4k', frameRate: '120', whiteBalance: '5500', shutter: '180', isoMax: '1600', stabilization: 'off' }) }),
-    custom: Object.freeze({ label: 'Custom', description: 'Start at 4K30 16:9; other settings are unchanged.', settings: Object.freeze({ resolution: '4k', frameRate: '30' }) })
+    custom: Object.freeze({ label: 'Custom', description: 'Start with your target; other settings are unchanged.', settings: Object.freeze({}) })
   });
-  function resolve(id, model) {
+  function validateTarget(target) {
+    if (!target || typeof target !== 'object' || Array.isArray(target) ||
+        Object.keys(target).length !== 2 || !['resolution', 'frameRate'].every(key =>
+          typeof target[key] === 'string' && Object.hasOwn(C.options[key], target[key]))) {
+      throw new Error('Choose a supported target resolution and frame rate.');
+    }
+  }
+  function resolve(id, model, target = defaultTarget) {
     if (!Object.hasOwn(definitions, id) || !Object.hasOwn(C.models, model)) throw new Error('Unknown preset or camera model.');
+    validateTarget(target);
     const blank = Object.fromEntries(Object.keys(C.options).map(key => [key, null]));
-    const settings = { ...blank, mode: 'video', ilsLens: false };
-    if (id === 'custom') return Object.assign(settings, definitions.custom.settings);
+    const settings = { ...blank, mode: 'video', ilsLens: false, ...target };
+    if (id === 'custom') return settings;
     Object.assign(settings, { bitDepth: '10', colorProfile: 'log2', bitrate: 'high', isoMode: 'range', sharpness: 'low' }, definitions[id].settings);
-    // Stabilization with an ILS requires the user to identify a suitable lens.
-    if (C.models[model].ils && id === 'run') settings.stabilization = 'off';
+    // Preserve the capture target. Use Off when stabilization needs separate setup
+    // or this tool has no verified coverage for the target's aspect/rate.
+    if (id === 'run' && (C.models[model].ils || !C.stabilizationCovered(settings))) settings.stabilization = 'off';
     return settings;
   }
-  return { definitions, resolve };
+  return { defaultTarget, definitions, validateTarget, resolve };
 });

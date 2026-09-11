@@ -12,10 +12,10 @@ const blank = () => ({ ...P.resolve('custom', pro), resolution: null, frameRate:
 test('starter commands match independently specified MISSION command fixtures', () => {
   const expected = {
     cinema: 'mVr8p24e0d1hH0cLbHw55i4s180sL',
-    run: 'mVr8p30e1d1hH0cLbHwAi16s0sL',
+    run: 'mVr8p24e1d1hH0cLbHwAi16s0sL',
     slow: 'mVr4p60e0d1hH0cLbHw55i8s180sL',
     high: 'mVr4p120e0d1hH0cLbHw55i16s180sL',
-    custom: 'mVr4p30'
+    custom: 'mVr8p24'
   };
   for (const [id, command] of Object.entries(expected)) assert.equal(G.buildGoProCommand(P.resolve(id, pro), pro), command);
 });
@@ -51,6 +51,33 @@ test('documented resolution/rate boundaries differ between MISSION and PRO', () 
   assert.equal(G.buildGoProCommand(fixture('1080', '240'), 'mission-1'), 'mVr1p240');
   assert.equal(G.buildGoProCommand(fixture('8k', '60'), pro), 'mVr8p60');
 });
+
+test('Cinema, Run & Gun and Custom follow every supported target without changing it', () => {
+  for (const [model, camera] of Object.entries(C.models)) {
+    for (const [resolution, rates] of Object.entries(camera.modes)) for (const frameRate of rates) {
+      const target = Object.freeze({ resolution, frameRate });
+      for (const id of ['cinema', 'run', 'custom']) {
+        const settings = P.resolve(id, model, target);
+        assert.equal(settings.resolution, resolution);
+        assert.equal(settings.frameRate, frameRate);
+        assert.deepEqual(G.validate(settings, model), [], model + ' ' + id + ' ' + resolution + '/' + frameRate);
+      }
+    }
+  }
+  assert.equal(G.buildGoProCommand(P.resolve('run', pro, { resolution: '4k', frameRate: '30' }), pro), 'mVr4p30e1d1hH0cLbHwAi16s0sL');
+  assert.equal(G.buildGoProCommand(P.resolve('cinema', pro, { resolution: '4k', frameRate: '30' }), pro), 'mVr4p30e0d1hH0cLbHw55i4s180sL');
+  assert.equal(G.buildGoProCommand(P.resolve('custom', pro, { resolution: '4k', frameRate: '30' }), pro), 'mVr4p30');
+});
+
+test('special presets keep explicit capture overrides; unsupported normal targets are not downgraded', () => {
+  const target = { resolution: '8k', frameRate: '60' };
+  assert.equal(G.buildGoProCommand(P.resolve('slow', 'mission-1', target), 'mission-1'), 'mVr4p60e0d1hH0cLbHw55i8s180sL');
+  assert.equal(G.buildGoProCommand(P.resolve('high', 'mission-1', target), 'mission-1'), 'mVr4p120e0d1hH0cLbHw55i16s180sL');
+  assert.throws(() => G.buildGoProCommand(P.resolve('cinema', 'mission-1', target), 'mission-1'), /combination/);
+  assert.equal(P.resolve('run', pro, { resolution: '4k', frameRate: '120' }).stabilization, 'off');
+  assert.equal(P.resolve('run', pro, { resolution: '8k-open', frameRate: '24' }).stabilization, 'off');
+  assert.deepEqual(target, { resolution: '8k', frameRate: '60' });
+});
 test('incomplete selections, GP-Log2 in 8-bit and unverified features are rejected', () => {
   const invalid = [
     { resolution: '8k' }, { frameRate: '60' }, { colorProfile: 'log2' },
@@ -77,7 +104,7 @@ test('stabilization coverage and ILS lens confirmation are checked by the builde
   assert.throws(() => G.buildGoProCommand({ ...P.resolve('cinema', pro), resolution: '8k-open', stabilization: 'on' }, pro), /not been verified/);
   assert.throws(() => G.buildGoProCommand({ ...P.resolve('high', pro), stabilization: 'auto' }, pro), /not been verified/);
   assert.throws(() => G.buildGoProCommand(P.resolve('run', pro), 'mission-1-pro-ils'), /supported for HyperSmooth/);
-  assert.equal(G.buildGoProCommand({ ...P.resolve('run', pro), ilsLens: true }, 'mission-1-pro-ils'), 'mVr8p30e1d1hH0cLbHwAi16s0sL');
+  assert.equal(G.buildGoProCommand({ ...P.resolve('run', pro), ilsLens: true }, 'mission-1-pro-ils'), 'mVr8p24e1d1hH0cLbHwAi16s0sL');
 });
 test('editing each preset field changes only its corresponding command component', () => {
   const base = P.resolve('cinema', pro);
@@ -101,10 +128,24 @@ test('Photo emits only explicitly supported controls and never video settings or
 });
 test('stored form data is versioned and validated; command injection is rejected', () => {
   const settings = P.resolve('cinema', pro);
-  assert.deepEqual(G.decodeState(G.encodeState(settings, pro)), { settings, model: pro });
+  assert.deepEqual(G.decodeState(G.encodeState(settings, pro)), { settings, model: pro, target: P.defaultTarget, preset: 'custom' });
   for (const input of ['', 'null', '[]', '{}', '{"version":2}', 'x'.repeat(6001)]) assert.throws(() => G.decodeState(input));
   for (const field of Object.keys(C.options)) assert.throws(() => G.buildGoProCommand({ ...settings, [field]: 'mV!FORMAT' }, pro));
   assert.throws(() => G.buildGoProCommand(JSON.parse('{"mode":"video","__proto__":{"polluted":true}}'), pro), /Unknown setting/);
+});
+
+test('stored targets and preset overrides survive reload; legacy forms migrate without changing capture settings', () => {
+  const target = { resolution: '4k', frameRate: '30' }, settings = P.resolve('slow', pro, target);
+  assert.deepEqual(G.decodeState(G.encodeState(settings, pro, target, 'slow')), { model: pro, settings, target, preset: 'slow' });
+  const legacy = P.resolve('cinema', pro, target);
+  assert.deepEqual(G.decodeState(JSON.stringify({ version: 1, model: pro, settings: legacy })), { model: pro, settings: legacy, target, preset: 'custom' });
+  const photo = { ...blank(), mode: 'photo' };
+  assert.deepEqual(G.decodeState(JSON.stringify({ version: 1, model: pro, settings: photo })).target, P.defaultTarget);
+  for (const bad of [null, [], {}, { resolution: '4k' }, { resolution: '4k', frameRate: 30 }, { resolution: '!FORMAT', frameRate: '24' }, { ...target, extra: true }]) {
+    assert.throws(() => P.resolve('cinema', pro, bad), /target/);
+    assert.throws(() => G.decodeState(JSON.stringify({ version: 2, model: pro, settings, target: bad, preset: 'slow' })), /target/);
+  }
+  assert.throws(() => G.decodeState(JSON.stringify({ version: 2, model: pro, settings, target, preset: '!FORMAT' })), /preset/);
 });
 test('settings QR uses automatic sizing with four white modules even for long commands', () => {
   const command = G.buildGoProCommand({ ...P.resolve('run', pro), shutter: 'auto', isoMax: '6400', isoMode: 'fixed', whiteBalance: '6500', ev: '-1.5', denoise: 'medium', frameRate: '60' }, pro);

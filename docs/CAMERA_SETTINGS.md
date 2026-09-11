@@ -39,24 +39,30 @@ Stabilization coverage is intentionally narrower than the camera's possible feat
 
 ## Starter presets
 
-Every preset defaults to 16:9 and resolves into a fresh, editable form. Open Gate remains available as a manual choice. Editing any field changes the selector to Custom. The four configured video presets all use 10-bit GP-Log2, High bitrate and Low sharpness. Noise reduction and EV are left unchanged. ISO is an auto ceiling, not an asserted 100 minimum.
+The global **Capture target** defaults to **8K 16:9 / 24 fps**. Cinema, Run & Gun and Custom inherit it; Slow Motion and High Frame Rate explicitly override it. Every preset defaults to 16:9 and resolves into a fresh, editable form. Open Gate remains available as a target or manual choice. Editing any field changes the selector to Custom. The four configured video presets all use 10-bit GP-Log2, High bitrate and Low sharpness. Noise reduction and EV are left unchanged. ISO is an auto ceiling, not an asserted 100 minimum.
 
 | Preset | Resolution / rate mode | Shutter | WB | ISO ceiling | HyperSmooth |
 |---|---|---|---|---|---|
-| Production / Cinema | 8K 16:9 / 24 | 180° | 5500K | 400 | Off |
-| Run & Gun | 8K 16:9 / 30 | Auto | Auto | 1600 | On; Off initially on ILS |
+| Production / Cinema | Target (default 8K 16:9 / 24) | 180° | 5500K | 400 | Off |
+| Run & Gun | Target (default 8K 16:9 / 24) | Auto | Auto | 1600 | On; Off initially on ILS or outside verified coverage |
 | Slow Motion | 4K 16:9 / 60 | 180° | 5500K | 800 | Off |
 | High Frame Rate | 4K 16:9 / 120 | 180° | 5500K | 1600 | Off |
-| Custom | 4K 16:9 / 30 | Unchanged | Unchanged | Unchanged | Unchanged |
+| Custom | Target (default 8K 16:9 / 24) | Unchanged | Unchanged | Unchanged | Unchanged |
 
-Exact commands for **MISSION 1 PRO**:
+Changing the target updates the active normal preset. In Custom it changes only resolution and frame rate, preserving other edits. Slow Motion and High Frame Rate keep their capture overrides while selected; once edited into Custom, subsequent target changes update their resolution and rate too. The UI compares the actual capture settings with the target and explicitly explains differences. A 4K30 target therefore produces 4K30 Cinema, Run & Gun and Custom commands, while the two special presets remain 4K60 / 4K120. The angle-based shutter follows the resulting frame rate automatically.
+
+Unsupported capture pairs remain visible and block command generation instead of silently changing the target. A special preset can still generate its supported override when the target is unavailable on the selected model; both the unavailable target and actual override are shown. Run & Gun switches HyperSmooth Off when its target falls outside the tool’s verified stabilization coverage, with an explanation. Custom stabilization choices are validated without being changed automatically.
+
+Photo mode emits none of the target's video settings. During a session the video draft retains its preset behavior, and target changes apply to that draft when appropriate. Returning from Photo restores that draft. If the page reloads or the camera model changes while in Photo, there is no video draft; returning to Video starts from Custom at the current target.
+
+Exact commands for **MISSION 1 PRO**, with the default 8K24 target:
 
 ```text
 Production / Cinema
 mVr8p24e0d1hH0cLbHw55i4s180sL
 
 Run & Gun
-mVr8p30e1d1hH0cLbHwAi16s0sL
+mVr8p24e1d1hH0cLbHwAi16s0sL
 
 Slow Motion
 mVr4p60e0d1hH0cLbHw55i8s180sL
@@ -65,7 +71,7 @@ High Frame Rate
 mVr4p120e0d1hH0cLbHw55i16s180sL
 
 Custom
-mVr4p30
+mVr8p24
 ```
 
 Cinema uses the same 8K 16:9 / 24 command on all three supported models. ILS Run & Gun substitutes `e0` for `e1` until the user chooses stabilization and confirms a suitable lens. Photo with RAW, 5500K and +0.5 EV produces `mPrw55x.5`.
@@ -87,7 +93,7 @@ Cinema uses the same 8K 16:9 / 24 command on all three supported models. ILS Run
 | File | Responsibility |
 |---|---|
 | `public/settings.html`, `public/settings-app.js` | Form state, mode switching, validation feedback, Generate, Copy, Reset, fullscreen and opt-in local storage |
-| `public/settings-presets.js` | Named preset definitions and model-specific starting points |
+| `public/settings-presets.js` | Global target defaults/validation, preset inheritance and explicit capture overrides |
 | `public/settings-capabilities.js` | Immutable model tables and documented token allowlists |
 | `public/settings-core.js` | Pure `validate`, `components`, `buildGoProCommand`, shutter hints and versioned state validation |
 | `public/qr.js` | Shared canvas renderer; optional automatic sizing for settings, original version-3 default for timecode |
@@ -98,6 +104,6 @@ Run `node --test tests/*.test.cjs` and `node scripts/build.cjs`. Existing timeco
 
 For browser checks, start `node scripts/serve.cjs`, then run `node scripts/check-browser.cjs` in a tooling environment with Playwright and Chromium installed. `TEST_BROWSER_CHANNEL=msedge` selects an installed Edge instead. `TEST_BASE_URL` overrides localhost:4173; `TEST_SCREENSHOT_DIR` optionally captures desktop/mobile views. These environment variables are for tests only and are not needed to host the app.
 
-The settings form uses the same-origin local-storage key `igorbox.camera-settings.v1` only after the user opts in. Invalid saved content is rejected. Loading or restoring a page never displays a settings QR automatically. Reset removes only this key, not unrelated application data. No timecode reference state is persisted by this feature.
+The settings form uses the same-origin local-storage key `igorbox.camera-settings.v1` only after the user opts in. The payload is now version 2 and includes the target and active preset, so special preset overrides survive reload. Version-1 forms migrate to Custom with their existing resolution/rate as the target; Photo or partial video forms use the default target without changing their saved fields. Invalid saved content is rejected. Loading or restoring a page never displays a settings QR automatically. Reset keeps the target, restores Cinema and removes only this key, not unrelated application data. No timecode reference state is persisted by this feature.
 
 Before claiming field validation for Camera Settings QR, record the camera model, exact firmware, lens where relevant, command, acknowledgment and actual resulting menu/clip values. Scan settings first, then jam timecode. Existing camera extensions can override normal controls; the utility neither reads nor clears those extensions.
