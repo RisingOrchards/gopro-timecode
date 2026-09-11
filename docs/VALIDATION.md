@@ -1,5 +1,11 @@
 # Software validation — 2026-09-09
 
+## Display follows capture rate — 2026-09-11
+
+Device Clock now labels its readout **Display timecode** and uses the selected capture rate for frame numbering and ±1f adjustments. Jam labels it **Source timecode** and continues using the independent source rate. Changing capture rate preserves the clock anchor, applied offset/timezone and live/paused QR state. High-speed displays through 240 are previews; supported manual Jam rates still stop at 60. Fractional readouts retain rational NDF counting and explain their difference from wall time.
+
+All **46** Node tests passed, along with the static build. Core/lifecycle checks cover known half-second labels at every integer rate, fractional boundaries, midnight, high-speed padding, frame nudges, mode switching and unchanged QR timestamps across capture selections. Headless Edge browser checks passed for Device Clock and Jam, ongoing QR animation, and high-speed readout fit at 390 and 320 pixels. Desktop and mobile screenshots were visually inspected, and the README screenshot was refreshed at 24 fps. This display change does not claim additional physical sync precision.
+
 ## Timecode capture-rate fix — 2026-09-11
 
 The owner reported that changing Camera capture rate stopped the timecode and prevented Start QR. The capture selector was incorrectly connected to the handler that invalidates an edited time reference. It now updates only rate information and the capture annotation; it preserves the applied clock, offset, timezone, running Jam anchor and live/paused QR state.

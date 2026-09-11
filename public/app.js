@@ -4,7 +4,7 @@
   const T = window.IgorTime;
   const $ = id => document.getElementById(id);
   const el = Object.fromEntries(['rate','capture-rate','capture-note','source','zone','offset','reference-form','manual-fields',
-    'reference-date','reference-tc','apply','reference-status','frame-length','rate-note','rate-label',
+    'reference-date','reference-tc','apply','reference-status','frame-length','rate-note','rate-label','timecode-label',
     'timecode','clock-detail','qr','qr-placeholder','placeholder-title','placeholder-text','signal',
     'scan-status','toggle','fullscreen','jam-panel','refresh-rate','wake-status','payload'].map(id => [id, $(id)]));
   let reference = null, valid = false, active = false, lastMono = null;
@@ -61,24 +61,29 @@
     releaseWake();
   }
   function updateRateNote() {
-    const key = sourceRateKey(), r = T.rateFor(key);
+    const key = readoutRateKey(), r = T.displayRateFor(key);
+    el['frame-length'].textContent = T.displayFrameMs(key).toFixed(3);
+    if (el.source.value === 'device') {
+      el['capture-note'].textContent = `The clock display and ±1f adjustments follow your ${key} fps selection. This does not configure the camera.`;
+      el['rate-note'].textContent = 'The QR sends precise date and time, independent of the display rate.'
+        + (r.den === 1001 ? ' This NDF display counts from midnight and runs about 3.6 seconds per hour behind wall time; the QR clock below shows wall time.' : '')
+        + (r.nominal > 60 ? ' High-speed frame counts are a display preview; the clip’s timecode may use a lower rate.' : ' Select the actual rate: 24 and 23.976 are different.');
+      return;
+    }
     const ratio = T.captureRatio(el['capture-rate'].value, key);
     el['capture-note'].textContent = `${el['capture-rate'].value} fps capture · ${Number(ratio.toFixed(3))} capture frame${Math.abs(ratio - 1) < 1e-8 ? '' : 's'} per timecode frame. Verify the reference rate and the clip’s timecode base.`;
-    el['frame-length'].textContent = T.frameMs(key).toFixed(3);
-    el['rate-note'].textContent = el.source.value === 'device'
-      ? 'Device Clock displays time at 30 fps. The QR sends date and time; it does not change the camera’s frame rate.'
-      : r.den === 1001
+    el['rate-note'].textContent = r.den === 1001
       ? 'NDF timecode runs about 3.6 seconds per hour behind wall time. Check that your source uses the same NDF convention before scanning.'
       : ['25','50'].includes(key) ? `Using ${key} fps timecode. High-speed capture can use a lower timecode base; check a recorded clip before the shoot.`
         : `Using true ${key}.000 fps timecode. Check actual capture and timecode rates: a GoPro mode label may represent a fractional rate. See Documentation.`;
   }
-  function sourceRateKey() {
-    return el.source.value === 'manual' ? el.rate.value : '30';
+  function readoutRateKey() {
+    return el.source.value === 'manual' ? el.rate.value : el['capture-rate'].value;
   }
   function settings() {
-    const key = sourceRateKey();
-    T.rateFor(key);
-    T.captureRatio(el['capture-rate'].value, key);
+    const key = readoutRateKey();
+    T.displayRateFor(el['capture-rate'].value);
+    if (el.source.value === 'manual') T.rateFor(key);
     return { key, capture: el['capture-rate'].value, source: el.source.value,
       zone: T.numberIn(el.zone.value, -720, 840, 'UTC offset', 15),
       offset: T.numberIn(el.offset.value, -T.DAY, T.DAY, 'Offset', 0.001) };
@@ -96,7 +101,6 @@
       valid = true;
       lastMono = mono;
       el.toggle.disabled = false;
-      el['rate-label'].textContent = T.rateFor(s.key).label;
       message(s.source === 'manual' ? 'Jammed at button press. Check against your source.' : 'Device Clock reference applied. Ready to scan.');
       updateReadout(mono);
     } catch (e) { valid = false; el.toggle.disabled = true; message(e.message, true); }
@@ -124,7 +128,11 @@
       message('Midnight rollover: jam the reference again.', true);
       return null;
     }
-    el.timecode.textContent = T.timecode(epoch, reference.key, reference.zone);
+    el['timecode-label'].textContent = reference.source === 'manual' ? 'Source timecode' : 'Display timecode';
+    el['rate-label'].textContent = T.displayRateFor(reference.key).label;
+    el.timecode.textContent = reference.source === 'manual'
+      ? T.timecode(epoch, reference.key, reference.zone)
+      : T.displayTimecode(epoch, reference.key, reference.zone);
     el['clock-detail'].textContent = `QR clock ${p.date} ${T.pad(p.hour)}:${T.pad(p.minute)}:${T.pad(p.second)} · ${utcLabel(reference.zone)}`;
     return epoch;
   }
@@ -164,11 +172,15 @@
   }
   el['reference-form'].addEventListener('submit', applyReference);
   for (const input of [el.rate, el.zone, el.offset, el['reference-date'], el['reference-tc']]) input.addEventListener('input', dirty);
-  // Capture cadence is informational; it does not change the jammed clock or QR.
+  // Update Device Clock's display in place, preserving the clock anchor and QR state.
   el['capture-rate'].addEventListener('input', () => {
     try {
       updateRateNote();
-      if (valid && reference) reference.capture = el['capture-rate'].value;
+      if (valid && reference) {
+        reference.capture = el['capture-rate'].value;
+        if (reference.source === 'device') reference.key = reference.capture;
+        updateReadout(performance.now());
+      }
     } catch (e) { stop('Select a supported camera capture rate, then apply the reference.', true); message(e.message, true); }
   });
   el.source.addEventListener('input', () => {
@@ -178,7 +190,7 @@
   for (const [id, sign] of [['minus-frame', -1], ['plus-frame', 1]]) $(id).addEventListener('click', () => {
     try {
       const value = T.numberIn(el.offset.value, -T.DAY, T.DAY, 'Offset', .001);
-      el.offset.value = Math.max(-T.DAY, Math.min(T.DAY, value + sign * T.frameMs(sourceRateKey()))).toFixed(3);
+      el.offset.value = Math.max(-T.DAY, Math.min(T.DAY, value + sign * T.displayFrameMs(readoutRateKey()))).toFixed(3);
       dirty();
     } catch (e) { stop('Correct the offset, then apply.', true); message(e.message, true); }
   });

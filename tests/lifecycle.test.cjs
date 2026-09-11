@@ -62,10 +62,12 @@ test('capture-rate changes keep Device Clock and live QR running with the applie
     f.el('capture-rate').value = capture; f.event('capture-rate', 'input');
     assert.equal(f.el('toggle').disabled, false, capture);
     assert.equal(f.el('qr').hidden, false, capture);
-    assert.equal(f.el('rate-label').textContent, '30');
+    assert.equal(f.el('rate-label').textContent, T.displayRateFor(capture).label);
+    assert.equal(f.el('timecode-label').textContent, 'Display timecode');
+    assert.equal(f.el('frame-length').textContent, T.displayFrameMs(capture).toFixed(3));
     f.step();
     assert.equal(f.payload, T.payload(f.wallTime + 37.5, 345));
-    assert.equal(f.el('timecode').textContent, T.timecode(f.wallTime + 37.5, '30', 345));
+    assert.equal(f.el('timecode').textContent, T.displayTimecode(f.wallTime + 37.5, capture, 345));
   }
 });
 
@@ -100,6 +102,8 @@ test('capture-rate edits preserve the running Jam anchor rather than applying th
   f.el('capture-rate').value = '240'; f.event('capture-rate', 'input'); f.step();
   assert.equal(f.el('qr').hidden, false);
   assert.equal(f.el('rate-label').textContent, '59.94 NDF');
+  assert.equal(f.el('timecode-label').textContent, 'Source timecode');
+  assert.equal(f.el('frame-length').textContent, T.frameMs('59.94').toFixed(3));
   assert.equal(f.payload, T.payload(anchor + f.wallTime - appliedWall, zone));
   assert.equal(f.el('timecode').textContent, T.timecode(anchor + f.wallTime - appliedWall, '59.94', zone));
 });
@@ -162,11 +166,12 @@ test('240 fps capture keeps the independently selected 60 fps timecode reference
   f.live(); assert.equal(f.el('qr').hidden,false);
 });
 
-test('Device Clock uses 30 fps and ignores the hidden Jam rate when switching back', () => {
+test('Device Clock restores the capture display rate and ignores the hidden Jam rate when switching back', () => {
   const f = fixture();
   assert.equal(f.el('manual-fields').hidden, true);
   assert.equal(f.el('rate').disabled, true);
   assert.equal(f.el('rate-label').textContent, '30');
+  f.el('capture-rate').value = '24'; f.event('capture-rate','input');
   f.el('source').value = 'manual'; f.event('source','input');
   assert.equal(f.el('manual-fields').hidden, false);
   assert.equal(f.el('rate').disabled, false);
@@ -180,12 +185,42 @@ test('Device Clock uses 30 fps and ignores the hidden Jam rate when switching ba
   assert.equal(f.el('rate').disabled, true);
   assert.equal(f.el('toggle').disabled, false);
   assert.equal(f.el('qr').hidden, true);
-  assert.equal(f.el('rate-label').textContent, '30');
-  assert.equal(f.el('timecode').textContent, T.timecode(f.wallTime, '30', Number(f.el('zone').value)));
+  assert.equal(f.el('rate-label').textContent, '24');
+  assert.equal(f.el('timecode').textContent, T.timecode(f.wallTime, '24', Number(f.el('zone').value)));
   f.step(100);
-  assert.equal(f.el('timecode').textContent, T.timecode(f.wallTime, '30', Number(f.el('zone').value)));
+  assert.equal(f.el('timecode').textContent, T.timecode(f.wallTime, '24', Number(f.el('zone').value)));
   f.event('plus-frame');
-  assert.equal(f.el('offset').value, '33.333');
+  assert.equal(f.el('offset').value, '41.667');
+});
+
+test('frame nudges follow every Device Clock capture rate and the independent Jam source rate', () => {
+  for (const capture of Object.keys(T.CAPTURE_RATES)) {
+    const f = fixture();
+    f.el('capture-rate').value = capture; f.event('capture-rate','input');
+    f.event('plus-frame');
+    assert.equal(f.el('offset').value, T.displayFrameMs(capture).toFixed(3), capture);
+    assert.equal(f.el('toggle').disabled, true);
+  }
+  const f = fixture();
+  f.el('source').value = 'manual'; f.el('rate').value = '24'; f.event('source','input');
+  f.el('capture-rate').value = '240'; f.event('capture-rate','input');
+  f.event('plus-frame'); assert.equal(f.el('offset').value, '41.667');
+});
+
+test('switching between display rates changes the frame digits without changing the current QR', () => {
+  const f = fixture(); f.el('zone').value = '0'; f.event('reference-form','submit');
+  for (let i = 0; i < 5; i++) f.step(100);
+  f.el('capture-rate').value = '24'; f.event('capture-rate','input');
+  assert.equal(f.el('timecode').textContent, '12:00:00:12');
+  f.el('capture-rate').value = '30'; f.event('capture-rate','input');
+  assert.equal(f.el('timecode').textContent, '12:00:00:15');
+  f.live(); const command = f.payload, renders = f.renders;
+  f.el('capture-rate').value = '23.976'; f.event('capture-rate','input');
+  assert.equal(f.payload, command);
+  assert.equal(f.renders, renders);
+  assert.equal(f.el('qr').hidden, false);
+  assert.match(f.el('rate-note').textContent, /NDF.*midnight/);
+  f.step(); assert.equal(f.payload, T.payload(f.wallTime, 0));
 });
 
 test('returning from an invalid Jam entry immediately restores Device Clock', () => {

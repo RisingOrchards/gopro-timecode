@@ -22,6 +22,15 @@
     '100': 100, '119.88': 120000 / 1001, '120': 120,
     '200': 200, '239.76': 240000 / 1001, '240': 240
   });
+  // High-speed readouts are previews, not additional supported Jam source rates.
+  const DISPLAY_RATES = Object.freeze({ ...RATES,
+    '100': Object.freeze({ num: 100, den: 1, nominal: 100, label: '100' }),
+    '119.88': Object.freeze({ num: 120000, den: 1001, nominal: 120, label: '119.88 NDF' }),
+    '120': Object.freeze({ num: 120, den: 1, nominal: 120, label: '120' }),
+    '200': Object.freeze({ num: 200, den: 1, nominal: 200, label: '200' }),
+    '239.76': Object.freeze({ num: 240000, den: 1001, nominal: 240, label: '239.76 NDF' }),
+    '240': Object.freeze({ num: 240, den: 1, nominal: 240, label: '240' })
+  });
   function captureRatio(captureKey, timecodeKey) {
     if (!Object.hasOwn(CAPTURE_RATES, captureKey)) throw new RangeError('Select a supported capture rate.');
     const r = rateFor(timecodeKey);
@@ -32,6 +41,10 @@
   function rateFor(key) {
     if (!Object.hasOwn(RATES, key)) throw new RangeError('Select a supported frame rate.');
     return RATES[key];
+  }
+  function displayRateFor(key) {
+    if (!Object.hasOwn(DISPLAY_RATES, key)) throw new RangeError('Select a supported capture rate.');
+    return DISPLAY_RATES[key];
   }
   function numberIn(value, min, max, label, step = 1) {
     if (String(value).trim() === '') throw new RangeError(`${label} is required.`);
@@ -57,17 +70,24 @@
     };
   }
   function formatFrames(frames, key) {
-    const r = rateFor(key);
+    return formatAtRate(frames, rateFor(key));
+  }
+  function formatAtRate(frames, r) {
     let f = mod(Math.floor(frames), r.nominal * 86400);
     const ff = f % r.nominal;
     f = Math.floor(f / r.nominal);
-    return `${pad(Math.floor(f / 3600))}:${pad(Math.floor(f / 60) % 60)}:${pad(f % 60)}:${pad(ff)}`;
+    return `${pad(Math.floor(f / 3600))}:${pad(Math.floor(f / 60) % 60)}:${pad(f % 60)}:${pad(ff, String(r.nominal - 1).length)}`;
   }
   function timecode(epochMs, key, zoneMinutes) {
     const r = rateFor(key);
     // Integer rational arithmetic matches the GoPro TOD model without 29.97 rounding.
     const frames = Math.floor(localParts(epochMs, zoneMinutes).dayMs * r.num / (1000 * r.den));
     return formatFrames(frames, key);
+  }
+  function displayTimecode(epochMs, key, zoneMinutes) {
+    const r = displayRateFor(key);
+    const frames = Math.floor(localParts(epochMs, zoneMinutes).dayMs * r.num / (1000 * r.den));
+    return formatAtRate(frames, r);
   }
   function parseTimecode(text, key) {
     const r = rateFor(key);
@@ -99,11 +119,13 @@
     return `oT${pad(p.year - 2000)}${pad(p.month)}${pad(p.day)}${pad(p.hour)}${pad(p.minute)}${pad(p.second)}.${pad(p.millisecond, 3)}oTD0oTZ${tz}oTI0`;
   }
   function frameMs(key) { const r = rateFor(key); return 1000 * r.den / r.num; }
+  function displayFrameMs(key) { const r = displayRateFor(key); return 1000 * r.den / r.num; }
   function clockIssue({ wallNow, monoNow, wallBase, monoBase, lastMono }) {
     if (Math.abs((wallNow - wallBase) - (monoNow - monoBase)) > 250) return 'clock';
     if (lastMono != null && monoNow - lastMono > 200) return 'stall';
     return null;
   }
   return Object.freeze({ DAY, RATES, CAPTURE_RATES, captureRatio, pad, rateFor, numberIn, localParts, formatFrames,
-    timecode, parseTimecode, dateMidnight, epochForTimecode, payload, frameMs, clockIssue });
+    timecode, parseTimecode, dateMidnight, epochForTimecode, payload, frameMs, clockIssue,
+    displayRateFor, displayTimecode, displayFrameMs });
 });

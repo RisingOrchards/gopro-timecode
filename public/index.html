@@ -47,7 +47,7 @@
           <label for="capture-rate">Camera capture rate</label>
           <select id="capture-rate" name="capture-rate"><option value="23.976">23.976 fps</option><option value="24">24 fps</option><option value="25">25 fps</option><option value="29.97">29.97 fps</option><option value="30" selected>30 fps</option><option value="50">50 fps</option><option value="59.94">59.94 fps</option><option value="60">60 fps</option><option value="100">100 fps</option><option value="119.88">119.88 fps</option><option value="120">120 fps</option><option value="200">200 fps</option><option value="239.76">239.76 fps</option><option value="240">240 fps</option></select>
           <p class="hint">MISSION 1 modes through 240 fps, including fractional rates. Available modes depend on model and resolution.</p>
-          <p class="hint" id="capture-note">30 fps capture · 1 capture frame per timecode frame.</p>
+          <p class="hint" id="capture-note">The clock display and ±1f adjustments follow your capture rate selection.</p>
           <label for="source">Reference source</label>
           <select id="source" aria-describedby="source-hint"><option value="device" selected>Device Clock</option><option value="manual">Jam</option></select>
           <p class="hint" id="source-hint">Device Clock uses this device’s time. Jam lets you manually match another timecode readout.</p>
@@ -62,15 +62,15 @@
           <p id="zone-hint" class="hint">Includes daylight saving time. Held fixed for this session.</p>
           <label for="offset">Reference offset <span class="unit">milliseconds</span></label>
           <div class="offset-row"><button id="minus-frame" type="button" aria-label="Subtract one timecode frame">−1f</button><input id="offset" type="number" min="-86400000" max="86400000" step="0.001" value="0" inputmode="decimal"><button id="plus-frame" type="button" aria-label="Add one timecode frame">+1f</button></div>
-          <p class="hint">Positive moves the reference ahead. One timecode frame = <span id="frame-length">33.333</span> ms.</p>
+          <p class="hint">Positive moves the reference ahead. One frame at the displayed rate = <span id="frame-length">33.333</span> ms.</p>
           <button class="secondary apply" id="apply" type="submit">Apply reference</button>
           <p id="reference-status" class="form-status" role="status">Using device clock.</p>
         </form>
-        <aside class="rate-note" id="rate-note">Device Clock displays time at 30 fps. The QR sends date and time; it does not change the camera’s frame rate.</aside>
+        <aside class="rate-note" id="rate-note">The QR sends precise date and time, independent of the display rate.</aside>
       </section>
       <section class="jam-panel" id="jam-panel" aria-labelledby="jam-title">
         <div class="section-title"><span class="step">02</span><h2 id="jam-title">Jam the cameras</h2><span class="signal" id="signal">QR OFF</span></div>
-        <div class="tc-display"><p class="eyebrow">REFERENCE TIMECODE <span id="rate-label">30</span></p><output id="timecode" aria-label="Reference timecode">--:--:--:--</output><p id="clock-detail">Reading clock…</p></div>
+        <div class="tc-display"><p class="eyebrow"><span id="timecode-label">Display timecode</span> <span id="rate-label">30</span></p><output id="timecode" aria-labelledby="timecode-label rate-label">--:--:--:--</output><p id="clock-detail">Reading clock…</p></div>
         <div class="qr-stage" id="qr-stage">
           <canvas id="qr" width="592" height="592" hidden role="img" aria-label="Live GoPro precision-time QR code"></canvas>
           <div id="qr-placeholder"><span class="viewfinder" aria-hidden="true">＋</span><strong id="placeholder-title">Ready when you are</strong><p id="placeholder-text">Check the reference, then start the QR.</p></div>

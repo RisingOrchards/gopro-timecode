@@ -6,7 +6,7 @@ Source: [RisingOrchards/gopro-timecode](https://github.com/RisingOrchards/gopro-
 
 A small, static GoPro utility with two tools: **Timecode QR** (Device Clock or manual Jam) and **Camera Settings QR** (editable MISSION presets). No framework, build dependencies, backend, pairing, analytics or CDN. One vendored MIT QR encoder. The software is MIT licensed.
 
-![IgorBox Timecode in dark mode, showing Device Clock at 30 fps and the live GoPro time QR](docs/images/app-screenshot.jpg)
+![IgorBox Timecode in dark mode, showing Device Clock at the selected 24 fps display rate and the live GoPro time QR](docs/images/app-screenshot.jpg)
 
 *Preview captured before the successful shoot report; the app now shows “Field tested.” Open [timecode.igorbox.com](https://timecode.igorbox.com/) to scan a current, animated QR.*
 
@@ -61,9 +61,11 @@ See [camera-settings research, preset commands and omissions](docs/CAMERA_SETTIN
 
 ## Timecode workflow
 
-**Defaults:** Device Clock, 30 fps camera capture and a 30 fps reference display. **Source Timecode Rate** appears only when **Jam** is selected and initially uses 30. Device Clock always displays at 30 fps; switching back from Jam does not retain a hidden source rate. The camera capture selector includes 24, 25, 30, 50, 60, 100, 120, 200 and 240 fps mode families, with fractional choices 23.976, 29.97, 59.94, 119.88 and 239.76. For 8K/60, choose your actual 60 or 59.94 capture mode. Available modes depend on model and resolution; see [GoPro’s specs](https://gopro.com/en/us/shop/buy-cameras/mission-1-series).
+**Defaults:** Device Clock, 30 fps camera capture and a 30 fps display. Device Clock's **Display timecode** and ±1f adjustments follow **Camera capture rate**: choosing 24 displays frames 00–23 and makes one frame 41.667 ms. **Source Timecode Rate** appears only when **Jam** is selected and initially uses 30. Switching back from Jam restores the selected capture display rate. The camera capture selector includes 24, 25, 30, 50, 60, 100, 120, 200 and 240 fps mode families, with fractional choices 23.976, 29.97, 59.94, 119.88 and 239.76. For 8K/60, choose your actual 60 or 59.94 capture mode. Available modes depend on model and resolution; see [GoPro’s specs](https://gopro.com/en/us/shop/buy-cameras/mission-1-series).
 
-**Capture fps and timecode fps are separate.** For example, 240 fps capture and a 60 fps Jam source gives four captured frames per timecode frame. The capture choice displays this relationship without changing the timecode or QR math. Under Jam, set Source Timecode Rate to the actual source rate. This version supports source labels through 60 fps and NDF only. Do not select NDF against a drop-frame source. The Device Clock readout's 30 fps does not change camera recording rates: the QR contains date/time, not a frame-rate command. Verify original and slow-motion/conformed clips separately.
+**The display rate does not configure camera timecode.** The QR contains date/time, with no frame-rate command. Device Clock's high-speed frame counts are display previews; they do not assert that a clip has a 120 or 240 fps timecode track. Counts above 99 use three digits, such as `12:00:00:120` halfway through a second at 240 fps. A screen may skip displayed frame numbers when the capture rate exceeds its refresh rate. Fractional displays use the NDF convention described below and can differ from wall-clock seconds; the QR clock remains unchanged.
+
+Under **Jam**, the **Source timecode** readout and ±1f adjustments follow the source rate independently of capture. For example, 240 fps capture and a 60 fps Jam source gives four captured frames per timecode frame. Set Source Timecode Rate to the actual source rate. Jam supports source labels through 60 fps and NDF only; do not select NDF against a drop-frame source. Verify original and slow-motion/conformed clips separately.
 
 Changing **Camera capture rate** keeps the reference clock running. A live QR continues updating; a paused QR stays paused, with Start QR available. The applied reference, offset and timezone are preserved in both Device Clock and Jam. Changing the actual **Source Timecode Rate** in Jam still requires a fresh manual match; changing capture rate cannot reactivate an invalidated reference.
 
@@ -80,7 +82,7 @@ Use the included [Documentation](public/guide.html) for Device Clock and Jam wor
 
 ### Example: MovieSlate on the same iPad
 
-Set MovieSlate to **Clock / Wall Clock** and use **Device Clock** here on the same iPad, with the device timezone and zero offset. Both use the iPad's time reference, so a manual match is unnecessary. At integer rates such as 30 or 60 they share wall-clock seconds; a 60 fps slate has different frame digits from this app's 30 fps display. The [MovieSlate user guide](https://www.movie-slate.com/ms_online/UserGuide/HTML_docs/help_hd.html?block_526=) documents its wall-clock source and fractional NDF limitations. Confirm actual camera alignment with a slate test.
+Set MovieSlate to **Clock / Wall Clock** and use **Device Clock** here on the same iPad, with the device timezone and zero offset. Both use the iPad's time reference, so a manual match is unnecessary. For a true 24.000 fps production, select 24 in MovieSlate and 24 as the camera capture rate here; both readouts then use frames 00–23. At the same instant, `12:00:00:12` at 24 fps and `12:00:00:15` at 30 fps both represent half a second past noon. Check the clip's actual rate: GoPro documents nominal 24 as 23.976 by default, with true 24 available separately through [Labs extensions](https://gopro.github.io/labs/control/extensions/). The [MovieSlate user guide](https://www.movie-slate.com/ms_online/UserGuide/HTML_docs/help_hd.html?block_526=) documents its wall-clock source and fractional NDF limitations. Confirm actual camera alignment with a slate test.
 
 The page uses the viewing iPad's clock even when hosted by another computer or Vercel. It makes no internet time request. Returning from another app requires **Apply reference**, then **Start QR**. At fractional NDF rates, check numbering explicitly; a shared wall clock does not resolve a DF/NDF mismatch. Use Jam for custom or external timecode. See the [same-iPad example](public/guide.html#movieslate-example).
 

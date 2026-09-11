@@ -91,3 +91,33 @@ test('all capture modes through 240 are distinct from timecode label rates', () 
   assert.throws(()=>T.rateFor('240'));
   assert.throws(()=>T.captureRatio('960','60'));
 });
+
+test('Device Clock display labels follow integer capture rates at the same instant', () => {
+  const instant = midnight + 12 * 3600000 + 500;
+  for (const [key, expected] of Object.entries({
+    '24': '12:00:00:12', '25': '12:00:00:12', '30': '12:00:00:15',
+    '50': '12:00:00:25', '60': '12:00:00:30', '100': '12:00:00:50',
+    '120': '12:00:00:060', '200': '12:00:00:100', '240': '12:00:00:120'
+  })) {
+    assert.equal(T.displayTimecode(instant, key, 0), expected);
+    assert.equal(T.displayFrameMs(key), 1000 / Number(key));
+  }
+  assert.equal(T.displayTimecode(midnight + 999, '240', 0), '00:00:00:239');
+  assert.equal(T.displayTimecode(midnight + 1000, '240', 0), '00:00:01:000');
+  assert.equal(T.displayTimecode(midnight + T.DAY, '240', 0), '00:00:00:000');
+});
+
+test('fractional display previews preserve rational NDF timing without expanding Jam support', () => {
+  for (const [key, nominal] of [['23.976',24], ['29.97',30], ['59.94',60], ['119.88',120], ['239.76',240]]) {
+    assert.equal(T.displayRateFor(key).nominal, nominal);
+    assert.equal(T.displayTimecode(midnight + 1001, key, 0), `00:00:01:${nominal > 100 ? '000' : '00'}`);
+    assert.equal(T.displayFrameMs(key), 1001 / nominal);
+    assert.equal(T.displayTimecode(midnight + 3603600, key, 0), `01:00:00:${nominal > 100 ? '000' : '00'}`);
+  }
+  assert.equal(T.displayTimecode(midnight + 1000, '119.88', 0), '00:00:00:119');
+  assert.equal(T.displayTimecode(midnight + 1000, '239.76', 0), '00:00:00:239');
+  assert.equal(T.displayTimecode(midnight + 3600000, '119.88', 0), '00:59:56:048');
+  assert.equal(T.displayTimecode(midnight + 3600000, '239.76', 0), '00:59:56:096');
+  for (const key of ['100','119.88','120','200','239.76','240']) assert.throws(() => T.parseTimecode('00:00:01:00', key));
+  for (const key of ['960','29.97 DF','toString']) assert.throws(() => T.displayRateFor(key));
+});

@@ -219,6 +219,9 @@ async function run() {
     await page.goto(base + '/');
     await page.locator('#capture-rate').selectOption('24');
     assert.equal(await page.locator('#toggle').isDisabled(), false);
+    assert.equal(await page.locator('#rate-label').textContent(), '24');
+    assert.equal(await page.locator('#timecode-label').textContent(), 'Display timecode');
+    assert.equal(await page.locator('#frame-length').textContent(), '41.667');
     assert.match(await page.locator('#timecode').textContent(), /^\d{2}:\d{2}:\d{2}:\d{2}$/);
     await page.locator('#toggle').click();
     await page.locator('#qr').waitFor({ state: 'visible' });
@@ -227,7 +230,7 @@ async function run() {
     await page.locator('#capture-rate').selectOption('59.94');
     assert.equal(await page.locator('#qr').isVisible(), true);
     assert.equal(await page.locator('#toggle').textContent(), 'Pause QR');
-    assert.equal(await page.locator('#rate-label').textContent(), '30');
+    assert.equal(await page.locator('#rate-label').textContent(), '59.94 NDF');
     await page.waitForFunction(previous => document.getElementById('payload').textContent !== previous, beforeCaptureChange);
     await page.locator('#toggle').click();
     await page.locator('#capture-rate').selectOption('60');
@@ -245,6 +248,7 @@ async function run() {
     await page.locator('#capture-rate').selectOption('240');
     assert.equal(await page.locator('#qr').isVisible(), true);
     assert.equal(await page.locator('#rate-label').textContent(), '25');
+    assert.equal(await page.locator('#timecode-label').textContent(), 'Source timecode');
     assert.match(await page.locator('#timecode').textContent(), /^01:00:/);
     await page.locator('#rate').selectOption('30');
     assert.equal(await page.locator('#qr').isVisible(), false);
@@ -252,9 +256,26 @@ async function run() {
     await page.locator('#capture-rate').selectOption('24');
     assert.equal(await page.locator('#toggle').isDisabled(), true);
     await page.locator('#source').selectOption('device');
-    assert.equal(await page.locator('#rate-label').textContent(), '30');
+    assert.equal(await page.locator('#rate-label').textContent(), '24');
     await page.locator('#toggle').click();
     await page.locator('#qr').waitFor({ state: 'visible' });
+    if (shots) {
+      await page.waitForFunction(() => /updates\/s/.test(document.getElementById('refresh-rate').textContent));
+      await page.screenshot({ path: path.join(shots, 'timecode-24-desktop.jpg'), fullPage: true });
+    }
+    await page.locator('#capture-rate').selectOption('240');
+    assert.equal(await page.locator('#rate-label').textContent(), '240');
+    assert.match(await page.locator('#timecode').textContent(), /^\d{2}:\d{2}:\d{2}:\d{3}$/);
+    for (const width of [390, 320]) {
+      await page.setViewportSize({ width, height: 844 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Timecode overflow at ' + width);
+      assert.equal(await page.locator('#timecode').evaluate(element => {
+        const display = element.getBoundingClientRect(), parent = element.parentElement.getBoundingClientRect();
+        return display.left >= parent.left && display.right <= parent.right;
+      }), true, 'High-speed readout overflow at ' + width);
+      if (shots && width === 320) await page.screenshot({ path: path.join(shots, 'timecode-240-mobile.png'), fullPage: true });
+    }
+    await page.setViewportSize({ width: 1280, height: 1000 });
     await page.getByRole('link', { name: 'Camera Settings QR', exact: true }).click();
     assert.equal(await page.locator('#camera-qr').isVisible(), false);
     await page.evaluate(() => localStorage.setItem('igorbox.camera-settings.v1', JSON.stringify({ version: 1, model: 'mission-1-pro', settings: window.IgorCameraPresets.resolve('cinema', 'mission-1-pro', { resolution: '4k', frameRate: '30' }) })));

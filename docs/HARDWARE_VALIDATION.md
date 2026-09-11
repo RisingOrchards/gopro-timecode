@@ -35,7 +35,7 @@ Use this optional record when evaluating a new camera/mode or choosing a re-jam 
 | Elapsed recording duration | |
 | Derived relative drift / chosen tolerance | |
 
-1. Verify one short file at each intended capture mode through 240 fps, including fractional versus integer variants. Separately check its embedded timecode base and source timecode rate (Jam supports 23.976 NDF, 24, 25, 29.97 NDF, 30, 50, 59.94 NDF, 60; Device Clock displays at 30). For 8K/60, ensure actual rates match expectations; a camera menu label alone is insufficient. Check slow-motion and conformed media separately.
+1. Verify one short file at each intended capture mode through 240 fps, including fractional versus integer variants. Separately check its embedded timecode base and source timecode rate (Jam supports 23.976 NDF, 24, 25, 29.97 NDF, 30, 50, 59.94 NDF, 60; Device Clock displays at the selected capture rate, with high-speed counts as previews). For 8K/60, ensure actual rates match expectations; a camera menu label alone is insufficient. Check slow-motion and conformed media separately.
 2. Compare with the source, such as MovieSlate. For a same-iPad Wall Clock workflow compare wall time and account for display-rate differences. Scan while idle. Confirm camera acceptance, then record slate/clap footage.
 3. Verify embedded starting timecode, not file creation timestamps. Align in Premiere by source timecode; inspect the visible/audible cue. Repeat jams to estimate repeatability.
 4. Run 30–60 minutes and compare the end clap. End error minus start error is the relative drift accumulated in that run. Choose a re-jam interval from results.
