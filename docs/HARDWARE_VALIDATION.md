@@ -1,8 +1,19 @@
-# Hardware acceptance record
+# Field testing and hardware measurements
 
-**QR acceptance reported; recorded-timecode accuracy and drift validation pending.** On 2026-09-09 the project owner reported a successful scan on a new MISSION 1 with stock firmware and no Labs installation. The exact firmware version was not supplied. The measured acceptance record below remains to be completed.
+**Field tested on a real MISSION 1 shoot.** The project owner confirmed successful production use on 2026-09-11.
 
-For each camera/mode, record:
+## Reported results
+
+| Report received | Result |
+|---|---|
+| 2026-09-09 | A new, out-of-the-box MISSION 1 accepted the app's time QR with stock firmware. No GoPro Labs installation was required. |
+| 2026-09-11 | The project owner reported: “we used it for a shoot and it worked perfectly.” |
+
+These dates record when the results were reported. The successful shoot establishes practical use of the workflow. Exact firmware versions, per-mode clip metadata and numerical offset/drift measurements were not supplied, so the report does not define a frame-accuracy tolerance for every setup.
+
+## Measure your setup
+
+Use this optional record when evaluating a new camera/mode or choosing a re-jam interval:
 
 | Field | Measured value |
 |---|---|
@@ -29,4 +40,4 @@ For each camera/mode, record:
 6. If overnight operation is needed, test QR date rollover, fractional NDF daily reset and the source's continuous numbering separately. Jam mode stops at QR midnight by design.
 7. Record successful and failed results with sample metadata. Do not infer hardware accuracy from software tests.
 
-The owner's acceptance report does not provide the measurements above. Automated math, lifecycle and QR checks cannot complete this record.
+Keep measured results alongside the production report. Automated math, lifecycle and QR checks validate software behavior; offset and drift measurements come from the cameras and recordings.

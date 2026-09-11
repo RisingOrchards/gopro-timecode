@@ -18,7 +18,11 @@ Completed locally before packaging:
 - Source links point to RisingOrchards/gopro-timecode and production links to timecode.igorbox.com. The optional GitHub Pages workflow runs only when manually requested; Vercel configuration contains no account or domain credentials.
 - Link-preview crawlers can read public metadata and social images. The existing `noindex, nofollow` HTML and HTTP directives remain in place. Public link previews do not require credentials or client-side execution.
 
-These are software checks. The project owner separately reported successful QR acceptance on a stock MISSION 1; no measured camera alignment, MovieSlate session recording, MP4 sample, Premiere import or display latency was supplied. The screenshot confirms the displayed app state, not camera sync accuracy or a complete browser workflow test. See `HARDWARE_VALIDATION.md` for the remaining measured acceptance work.
+## Production field report — received 2026-09-11
+
+The project owner confirmed that the utility was used on a real MISSION 1 shoot and “worked perfectly.” This follows the stock-firmware QR acceptance report received on 2026-09-09. The app and documentation now label the utility **Field tested**.
+
+The production report provides practical field evidence alongside the software checks above. It did not include numerical offset/drift measurements or per-mode clip metadata. The README screenshot predates the field report and shows the earlier status badge. See [field testing and hardware measurements](HARDWARE_VALIDATION.md) for the recorded results and a procedure for evaluating other setups.
 
 To reproduce the shipped dependency-free checks:
 

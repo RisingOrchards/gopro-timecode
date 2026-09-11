@@ -20,9 +20,9 @@
 <body>
 <header class="topbar"><a class="brand" href="./"><img class="brand-logo" src="./assets/igorbox-logo.png" width="921" height="175" alt="IgorBox"> <span class="brand-sub">/ Timecode</span></a><nav aria-label="Main navigation"><a href="./">← Back to QR</a></nav></header>
 <main class="guide">
-  <p class="eyebrow">DOCUMENTATION · VERIFIED 9 SEPTEMBER 2026</p><h1>Timecode sync documentation</h1>
+  <p class="eyebrow">DOCUMENTATION · FIELD TESTED</p><h1>Timecode sync documentation</h1>
   <p>Choose <strong>Device Clock</strong> to use the time on the device displaying this page, or <strong>Jam</strong> to manually match a running timecode source. Show the animated GoPro time QR to each camera, then verify the recorded timecode in your editing workflow.</p>
-  <p class="callout"><strong>MISSION 1 works with stock firmware.</strong> The project owner reported successful QR acceptance on a new, out-of-the-box MISSION 1 on 9 September 2026, with no Labs installation. The exact stock firmware version was not recorded. GoPro’s <a href="https://gopro.github.io/labs/">Labs compatibility table</a> also lists MISSION 1 and MISSION 1 PRO. Recorded timecode accuracy and drift still need measured validation.</p>
+  <p class="callout"><strong>Field tested on a real MISSION 1 shoot.</strong> On 11 September 2026, the project owner confirmed that the utility was used for a shoot and “worked perfectly.” Earlier testing on a new, out-of-the-box MISSION 1 also confirmed that no Labs installation is required for the time-QR workflow. GoPro’s <a href="https://gopro.github.io/labs/">Labs compatibility table</a> separately lists MISSION 1 and MISSION 1 PRO.</p>
   <nav class="toc" aria-label="Documentation contents"><a href="#setup">Setup</a><a href="#device-clock">Device Clock</a><a href="#jam">Jam</a><a href="#premiere">Premiere</a><a href="#validation">Drift test</a><a href="#protocol">QR details</a></nav>
   <h2 id="setup">1. Prepare the reference and cameras</h2><p><strong>Defaults:</strong> Device Clock with a 30 fps readout; camera capture and the Jam source rate also start at 30 fps. Set camera capture to your actual mode, such as 60 for an 8K/60 setup. <strong>Source Timecode Rate</strong> appears only under Jam. Confirm the actual video rate and embedded timecode timebase in a test clip. Resolution does not enter the time QR. Jam supports NDF only; do not use it with a drop-frame reference.</p>
   <ol>
@@ -66,7 +66,7 @@
   <p>An external audio recorder must share the reference independently. Showing it this QR does nothing unless that device explicitly supports the protocol.</p>
   <h2 id="validation">4. Measure offset and drift</h2>
   <p><strong>Jam sync</strong> sets an initial clock relationship; each device then runs independently. <strong>Genlock</strong> aligns video timing and exposure cadence through an ongoing reference. This QR workflow provides no genlock and cannot guarantee that exposures begin together.</p>
-  <p>There is no measured MISSION 1 accuracy figure for this app yet. Browser scheduling, screen refresh, QR recognition, manual matching, temperature and camera oscillators all contribute. One frame lasts about 41.708 ms at 23.976, 41.667 ms at 24, 40 ms at 25, 33.367 ms at 29.97, 33.333 ms at 30, 16.683 ms at 59.94, and 16.667 ms at 60.</p>
+  <p>The successful shoot report establishes practical use. To choose a re-jam interval for your own setup, measure initial offset and drift with the procedure below. Browser scheduling, screen refresh, QR recognition, manual matching, temperature and camera oscillators all contribute. One frame lasts about 41.708 ms at 23.976, 41.667 ms at 24, 40 ms at 25, 33.367 ms at 29.97, 33.333 ms at 30, 16.683 ms at 59.94, and 16.667 ms at 60.</p>
   <ol>
     <li>Match the reference and jam all cameras. Record camera model, firmware, actual frame rate, offset, display device and date.</li>
     <li>Record a common clap/slate at the start, keep cameras running for 30–60 minutes, and clap/slate again at the end.</li>

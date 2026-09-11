@@ -8,11 +8,13 @@ A small, static GoPro precision date/time QR utility with **Device Clock** and m
 
 ![IgorBox Timecode in dark mode, showing Device Clock at 30 fps and the live GoPro time QR](docs/images/app-screenshot.jpg)
 
-*Preview image only. Open [timecode.igorbox.com](https://timecode.igorbox.com/) to scan a current, animated QR.*
+*Preview captured before the successful shoot report; the app now shows “Field tested.” Open [timecode.igorbox.com](https://timecode.igorbox.com/) to scan a current, animated QR.*
 
 The app and documentation use IgorBox's forest green and warm charcoal palette, a black header and the locally bundled silver logo. Button shades are adjusted for readable contrast. The animated QR retains black modules and a white quiet zone for scanning. Branding can be replaced in `public/assets/igorbox-logo.png` and the two HTML headers; logo rights are separate from the code's MIT license.
 
-**Status: v0.1.0, documentation verified on 2026-09-09.** The project owner reports successful QR acceptance on a new, out-of-the-box MISSION 1 with stock firmware; **GoPro Labs installation is not required for that workflow**. The exact stock firmware version was not recorded. Recorded timecode accuracy and drift remain to be measured. The app uses the viewing device's clock or a manually matched reference; it does not receive LTC or automatically follow an external source.
+**Status: v0.1.0 · Field tested on a real MISSION 1 shoot.** On 2026-09-11, the project owner confirmed that the utility was used for a shoot and “worked perfectly.” Earlier testing also confirmed QR acceptance on a new, out-of-the-box MISSION 1 with stock firmware; **GoPro Labs installation is not required for that workflow**. See the [field report](docs/HARDWARE_VALIDATION.md) for the reported results and a procedure for measuring offset and drift with your own setup.
+
+The app uses the viewing device's clock or a manually matched reference; it does not receive LTC or automatically follow an external source. Protocol documentation was verified on 2026-09-09.
 
 ## Run
 
@@ -56,6 +58,7 @@ Automatic matching from MovieSlate Pro is feasible via a wired LTC audio input a
 
 ## What was verified
 
+- **Real shoot:** the project owner reported successful use of the MISSION 1 sync workflow on 2026-09-11. This follows the stock-firmware QR acceptance report on 2026-09-09. See the [field report](docs/HARDWARE_VALIDATION.md).
 - GoPro’s [current Labs matrix](https://gopro.github.io/labs/) marks **Time/date/timecode QR Code** supported for MISSION 1 / MISSION 1 PRO. This documents Labs compatibility; it does not imply Labs is required. The project owner's stock MISSION 1 acceptance report is separate field evidence.
 - The [Precision Time page](https://gopro.github.io/labs/control/precisiontime/) animates a date/time QR. Its older May 2025 compatibility footer omits MISSION; the newer main matrix explicitly includes it.
 - The [command reference](https://gopro.github.io/labs/control/tech/) and [generator source](https://github.com/gopro/labs/blob/master/docs/control/precisiontime/README.md) establish the payload format. See [research notes](docs/RESEARCH.md) for the evidence, assumptions and limitations.
@@ -96,7 +99,7 @@ Manual matching inverts the equation to find a QR clock timestamp at the beginni
 
 **Midnight:** a daily GoPro clock mapping resets at QR midnight. Fractional NDF has not yet reached 24 nominal hours at that point; the last approximately 86 seconds of nominal labels cannot be represented. Manual matching rejects that unreachable range, and manual references stop at a QR-date rollover. Device-clock mode follows the daily reset. This utility does not claim uninterrupted arbitrary SMPTE free-run across midnight.
 
-True 24/30/60 camera timecode is an explicitly labeled inference from integer capture support and the time-of-day model, not a measured MISSION result. GoPro documents [24HZ and ALLI](https://gopro.github.io/labs/control/extensions/) for integer capture. Verify actual file rate and embedded timecode in every intended mode before trusting the readout.
+True 24/30/60 camera timecode uses an integer clock model derived from integer capture support and the time-of-day model. The successful shoot report confirms the workflow in production; rate-by-rate MP4 timecode measurements were not supplied. GoPro documents [24HZ and ALLI](https://gopro.github.io/labs/control/extensions/) for integer capture. Check actual file rate and embedded timecode when using a new capture mode.
 
 ## Accuracy, jam sync and genlock
 
@@ -160,7 +163,7 @@ public/                 Deploy this directory; also opens directly
   vendor/               Pinned qrcode-generator 1.4.4 + MIT notice
 tests/                  Node built-in tests; no dependencies
 scripts/                Local server and static integrity check
-docs/                   Research and hardware acceptance checklist
+docs/                   Research, field report and drift measurement guide
 .github/workflows/      CI and optional GitHub Pages publication
 ```
 

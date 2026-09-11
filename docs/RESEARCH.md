@@ -19,7 +19,7 @@ Official generator source retrieved from `https://raw.githubusercontent.com/gopr
 
 - The older Precision Time page footer excludes MISSION; the newer compatibility matrix resolves model support. That does not establish app-specific accuracy.
 - The mathematical NDF conversion is derived from the generator preview. It is not a public specification of every camera’s MP4 `tmcd` implementation.
-- True 24/30/60 use an integer clock model. Capture support is documented, but matching embedded MISSION timecode has not been tested here. The official generator includes a fractional 60-family preview; 59.94 NDF uses the same 60000/1001 conversion. High-frame-rate capture and embedded timecode can have different timebases, so validate a file from the intended 8K/60 mode.
+- True 24/30/60 use an integer clock model. Capture support is documented and successful production use was reported on 2026-09-11; rate-by-rate embedded MISSION timecode measurements were not supplied. The official generator includes a fractional 60-family preview; 59.94 NDF uses the same 60000/1001 conversion. High-frame-rate capture and embedded timecode can have different timebases, so validate a file when using a new capture mode.
 - `oTI0` is retained from the current generator. No claim is made about its undocumented camera-side semantics.
 - Fixed UTC offset includes DST; `oTD0` is deliberate. Metadata reports that fixed offset, not a named timezone with automatic future DST transitions.
 - A manual offset can make the camera’s wall-clock metadata differ from real civil time. The UI shows that QR clock alongside predicted timecode.
@@ -30,8 +30,10 @@ Official generator source retrieved from `https://raw.githubusercontent.com/gopr
 
 GoPro’s [MISSION 1 Series specs](https://gopro.com/en/us/shop/buy-cameras/mission-1-series) list capture mode families through 240 as 24/25/30/50/60/100/120/200/240, with resolution and model restrictions. The UI offers those capture rates and corresponding broadcast fractional variants. Capture cadence is independent of source timecode; high-speed choices do not fabricate 120/240 fps timecode tracks. Capture and Jam rate default to 30. Source Timecode Rate is shown only under Jam; Device Clock uses a fixed 30 fps display and frame nudge. The QR command does not include a camera frame-rate setting.
 
-## Stock firmware observation
+## Field observations
 
-On 2026-09-09 the project owner reported that the utility works on a new, out-of-the-box MISSION 1 without installing GoPro Labs. This is direct user-reported QR acceptance, not a documentation inference. The firmware version and exact model variant were not captured beyond MISSION 1. The setup instructions now start with stock firmware. Embedded MP4 timecode accuracy, repeatability, high-speed behavior and drift remain pending measured validation; do not extend this single report to every GoPro model or firmware.
+On 2026-09-09 the project owner reported that the utility works on a new, out-of-the-box MISSION 1 without installing GoPro Labs. The setup instructions therefore start with stock firmware.
+
+On 2026-09-11 the project owner confirmed successful use on a real shoot, reporting that it “worked perfectly.” This adds production experience to the earlier QR acceptance result. Both dates are report dates. Firmware versions, per-mode MP4 metadata and numerical offset/drift measurements were not supplied. See the [field testing record](HARDWARE_VALIDATION.md) for the results and a measurement procedure for other setups.
 
 The app code is independently written, not copied from the GoPro generator. Unlike its legacy rate labels, selections distinguish fractional and true integer rates. QR output has a four-module quiet zone. Applied clock state uses a monotonic anchor. Invalid input or discontinuities invalidate output; calibration is deliberately not persisted across reloads. These are engineering choices, not GoPro protocol requirements.
