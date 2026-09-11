@@ -14,7 +14,7 @@ Three regression tests reproduced the failure before the fix and passed afterwar
 
 ## Camera Settings QR extension — 2026-09-11
 
-- A configuration QR scan on original GoPro firmware returned “Timecode not synced” and applied no settings, as confirmed by the project owner. The settings page, README and guide now state the GoPro Labs firmware requirement explicitly and provide a manual-settings workflow for stock firmware. This records a failed stock configuration scan, not a failure of the field-tested Timecode QR. Successful configuration scanning on Labs firmware remains unverified on hardware.
+- A configuration QR scan on original GoPro firmware returned “Timecode not synced” and applied no settings, as confirmed by the project owner. The settings page, README and guide state the GoPro Labs firmware requirement explicitly and provide a manual-settings workflow for stock firmware. The owner subsequently reported “I updated the firmware and everything works perfectly,” confirming successful use after the update. Exact firmware and per-preset results were not supplied; see the [hardware report](HARDWARE_VALIDATION.md).
 
 - Capture target defaults to 8K 16:9 / 24 fps. Cinema, Run & Gun and Custom inherit it on all three models; Slow Motion keeps 4K60 and High Frame Rate keeps 4K120 with visible override feedback. All supported model/target combinations were exercised for the three target-following presets. The documentation screenshot was refreshed. ILS lens confirmation follows GoPro’s current supported-lens guidance, including its specifically profiled fisheyes.
 
@@ -26,7 +26,7 @@ Three regression tests reproduced the failure before the fix and passed afterwar
 - An independent jsQR decoder read **80** settings raster fixtures: six presets on three models, a longer advanced command and a Photo command, each at native size and 390, 280 and 220 pixels. All decoded strings matched the generated command.
 - No new application or build dependency was added. `scripts/check-browser.cjs` is optional and uses a separate Playwright tooling environment.
 
-These checks verify software output. Camera Settings QR has not yet received the hardware shoot validation recorded for Timecode QR. See [camera-settings research and omissions](CAMERA_SETTINGS.md) for the documented scope.
+These checks verify software output. Camera Settings QR also has an owner report of successful use after a firmware update; the earlier production-shoot report applies to Timecode QR. See [camera-settings research and omissions](CAMERA_SETTINGS.md) for the documented scope.
 
 ## Original timecode release
 

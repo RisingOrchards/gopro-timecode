@@ -14,6 +14,8 @@ The app and documentation use IgorBox's forest green and warm charcoal palette, 
 
 **Timecode status: v0.1.0 · Field tested on a real MISSION 1 shoot.** On 2026-09-11, the project owner confirmed that the utility was used for a shoot and “worked perfectly.” Earlier testing also confirmed QR acceptance on a new, out-of-the-box MISSION 1 with stock firmware; **GoPro Labs installation is not required for that timecode workflow**. See the [field report](docs/HARDWARE_VALIDATION.md) for the reported results and a procedure for measuring offset and drift with your own setup.
 
+**Camera Settings QR: confirmed working after a firmware update.** On 2026-09-11, following a failed settings scan on original firmware, the owner reported: “I updated the firmware and everything works perfectly.” See the [hardware report](docs/HARDWARE_VALIDATION.md) for the recorded scope; the exact firmware build and presets tested were not supplied.
+
 The app uses the viewing device's clock or a manually matched reference; it does not receive LTC or automatically follow an external source. Protocol documentation was verified on 2026-09-09.
 
 ## Run
@@ -51,11 +53,11 @@ Changing the target in Custom replaces resolution and frame rate while preservin
 
 [Preview the Camera Settings QR screen](docs/images/camera-settings.png).
 
-Supported video controls include resolution/aspect, rate modes through 240, depth, color, Standard/High bitrate, shutter angle, ISO ceiling or fixed ISO, discrete WB, sharpness, EV, HyperSmooth and denoise. Photo offers mode, RAW, WB and EV. Compatibility validation checks the model, resolution/rate pairs, GP-Log2 depth, ISO/shutter/EV interactions and ILS lens requirements. The new settings tool has documented command support and software/browser tests; its camera scan acceptance is separate from the field-tested timecode tool.
+Supported video controls include resolution/aspect, rate modes through 240, depth, color, Standard/High bitrate, shutter angle, ISO ceiling or fixed ISO, discrete WB, sharpness, EV, HyperSmooth and denoise. Photo offers mode, RAW, WB and EV. Compatibility validation checks the model, resolution/rate pairs, GP-Log2 depth, ISO/shutter/EV interactions and ILS lens requirements. The settings tool has documented command support, software/browser tests and an owner report of successful camera use after a firmware update.
 
 **Key differences from camera-menu shorthand:** 24/30/60 mode labels follow existing camera timing and may be fractional. Shutter uses documented angles, not direct speed extensions. WB includes 5500K rather than an invented 5600K command. Independent ISO minimum, Max/custom Mbps and unverified stabilization combinations are omitted. Settings QR requires model-specific Labs firmware; Timecode QR works on stock MISSION 1 firmware as field tested.
 
-**“Timecode not synced” while scanning a settings QR:** on 2026-09-11 the project owner reported this message on original GoPro firmware, with no settings applied. Treat this as a failed configuration scan. The likely explanation is the stock timecode reader rejecting a Labs settings command; the exact firmware error path has not been independently confirmed. Set capture options manually on stock firmware, or use model-matched Labs firmware for configuration QR. See [troubleshooting](public/guide.html#settings-timecode-error).
+**“Timecode not synced” while scanning a settings QR:** on 2026-09-11 the project owner reported this message on original GoPro firmware, with no settings applied. A subsequent firmware update resolved the reported problem. The likely explanation for the original failure is the stock timecode reader rejecting a Labs settings command; the exact firmware error path has not been independently confirmed. Set capture options manually on stock firmware, or use model-matched Labs firmware for configuration QR. See [troubleshooting](public/guide.html#settings-timecode-error).
 
 See [camera-settings research, preset commands and omissions](docs/CAMERA_SETTINGS.md) and the [usage guide](public/guide.html#camera-settings). Reset restores the local form; it sends no camera-reset command. No backend or new package dependency is added.
 

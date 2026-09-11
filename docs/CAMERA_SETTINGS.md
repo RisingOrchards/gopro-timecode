@@ -1,10 +1,12 @@
 # Camera Settings QR
 
-Research date: **2026-09-11**. This extension adds a second static page using the existing QR encoder and visual style. Timecode's clock/reference logic is unchanged. The earlier shoot result applies to Timecode QR; settings commands still need a camera acceptance test.
+Research date: **2026-09-11**. This extension adds a second static page using the existing QR encoder and visual style. Timecode's clock/reference logic is unchanged. The earlier shoot result applies to Timecode QR; a subsequent owner report confirms Camera Settings QR works after a firmware update.
 
 **Firmware requirement:** settings QR uses GoPro Labs firmware for the selected camera. GoPro’s [Labs overview](https://gopro.com/en/us/info/gopro-labs) explicitly describes special firmware for configuration QR, and its [control index](https://gopro.github.io/labs/control/) lists MISSION configuration under Labs-enabled cameras. The project’s successful stock-firmware timecode tests do not establish support for these configuration commands.
 
 **Hardware report, 2026-09-11:** the project owner scanned a configuration QR on original GoPro firmware and saw “Timecode not synced”; no settings changed. The exact command and numeric firmware version were not provided. The likely explanation is the stock timecode reader rejecting a Labs settings payload, but the exact firmware error path has not been independently confirmed. The UI now states the Labs requirement before the form and links to troubleshooting. On stock firmware, set capture options manually and use Timecode QR to jam. Do not interpret this failed scan as successful camera-settings validation.
+
+**Follow-up, 2026-09-11:** the owner reported “I updated the firmware and everything works perfectly.” This records successful use of the settings workflow on the owner's MISSION 1 setup after updating firmware. The exact build, individual presets and HDMI capture-chain results were not supplied. See the [hardware report](HARDWARE_VALIDATION.md).
 
 ## Source decisions
 
@@ -117,4 +119,4 @@ For browser checks, start `node scripts/serve.cjs`, then run `node scripts/check
 
 The settings form uses the same-origin local-storage key `igorbox.camera-settings.v1` only after the user opts in. The payload is now version 2 and includes the target and active preset, so special preset overrides survive reload. Version-1 forms migrate to Custom with their existing resolution/rate as the target; Photo or partial video forms use the default target without changing their saved fields. Invalid saved content is rejected. Loading or restoring a page never displays a settings QR automatically. Reset keeps the target, restores Cinema and removes only this key, not unrelated application data. No timecode reference state is persisted by this feature.
 
-Before claiming field validation for Camera Settings QR, record the camera model, exact firmware, lens where relevant, command, acknowledgment and actual resulting menu/clip values. Scan settings first, then jam timecode. Existing camera extensions can override normal controls; the utility neither reads nor clears those extensions.
+For additional reproducible Camera Settings QR reports, record the camera model, exact firmware, lens where relevant, command, acknowledgment and actual resulting menu/clip values. Scan settings first, then jam timecode. Existing camera extensions can override normal controls; the utility neither reads nor clears those extensions.
