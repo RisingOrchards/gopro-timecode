@@ -39,7 +39,7 @@ Use the **Timecode QR** tab for the clock workflow below. Use **Camera Settings 
 
 [Open Camera Settings QR](https://timecode.igorbox.com/settings.html). Choose MISSION 1, MISSION 1 PRO or MISSION 1 PRO ILS, pick a starting preset, then edit any field. Generate displays a large static QR and the exact command. Copy Command, Reset and fullscreen are included; changing settings clears the previous QR. Optional Remember settings stores the form locally and always restores with the QR off.
 
-Presets: **Production / Cinema**, **Run & Gun**, **Slow Motion**, **High Frame Rate** and **Custom**. Cinema starts at 8K Open Gate / 24 on PRO models (4K Open Gate on MISSION 1); the other configured presets start at 4K30, 4K60 and 4K120. Each uses 10-bit GP-Log2, High bitrate and Low sharpness. Fields remain editable.
+Presets: **Production / Cinema**, **Run & Gun**, **Slow Motion**, **High Frame Rate** and **Custom**. All preset defaults use 16:9. Cinema starts at 8K24; Run & Gun at 8K30; Slow Motion at 4K60; High Frame Rate at 4K120. Those four presets use 10-bit GP-Log2, High bitrate and Low sharpness. Custom starts at 4K30 with other settings unchanged. Fields remain editable, including Open Gate where supported.
 
 [Preview the Camera Settings QR screen](docs/images/camera-settings.png).
 

@@ -13,9 +13,9 @@
   const baseModes = { '8k': low, '4k': fast, '4k-open': fast, '1080': high, '1440': high, '4k-vertical': ['25', '30'], '1080-vertical': ['25', '30', '50', '60'] };
   const proModes = { ...baseModes, '8k': medium, '8k-open': low, '4k': high };
   const models = {
-    'mission-1': { label: 'MISSION 1', modes: baseModes, cinemaResolution: '4k-open', ils: false, firmware: 'MISSION Labs 2.02.70 or later' },
-    'mission-1-pro': { label: 'MISSION 1 PRO', modes: proModes, cinemaResolution: '8k-open', ils: false, firmware: 'MISSION Labs 2.02.70 or later' },
-    'mission-1-pro-ils': { label: 'MISSION 1 PRO ILS', modes: proModes, cinemaResolution: '8k-open', ils: true, firmware: 'ILS Labs 3.00.70 or later' }
+    'mission-1': { label: 'MISSION 1', modes: baseModes, ils: false, firmware: 'MISSION Labs 2.02.70 or later' },
+    'mission-1-pro': { label: 'MISSION 1 PRO', modes: proModes, ils: false, firmware: 'MISSION Labs 2.02.70 or later' },
+    'mission-1-pro-ils': { label: 'MISSION 1 PRO ILS', modes: proModes, ils: true, firmware: 'ILS Labs 3.00.70 or later' }
   };
   // Values are UI identifiers. Only these literal tokens may enter a QR.
   const options = {

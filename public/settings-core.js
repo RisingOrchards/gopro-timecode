@@ -30,7 +30,7 @@
       if (settings.ev != null && shutter != null && shutter !== 'auto' && isoMode != null) errors.push('EV compensation is not offered with a manual shutter and an explicit ISO setting; leave EV unchanged.');
       if (['on', 'auto'].includes(stabilization)) {
         if (!C.stabilizationCovered(settings)) errors.push('HyperSmooth On/AutoBoost is offered here only for 16:9 modes through 60 fps. Other combinations have not been verified for this tool; choose Off or leave unchanged.');
-        if (C.models[model].ils && settings.ilsLens !== true) errors.push('ILS HyperSmooth requires a rectilinear prime lens. Confirm your lens or select Off.');
+        if (C.models[model].ils && settings.ilsLens !== true) errors.push('Confirm that your ILS lens is supported for HyperSmooth and set up on the camera, or select Off.');
       }
     }
     return errors;

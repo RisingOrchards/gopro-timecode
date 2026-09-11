@@ -28,27 +28,28 @@ async function run() {
       await generate(G.buildGoProCommand(P.resolve(id, 'mission-1-pro'), 'mission-1-pro'));
     }
     await page.locator('#camera-preset').selectOption('cinema');
-    await generate('mVr8Tp24e0d1hH0cLbHw55i4s180sL');
+    await generate('mVr8p24e0d1hH0cLbHw55i4s180sL');
     await page.locator('#setting-whiteBalance').selectOption('3200');
     assert.equal(await page.locator('#camera-qr').isVisible(), false);
     assert.equal(await page.locator('#camera-copy').isDisabled(), true);
     assert.equal(await page.locator('#camera-preset').inputValue(), 'custom');
-    await generate('mVr8Tp24e0d1hH0cLbHw32i4s180sL');
+    await generate('mVr8p24e0d1hH0cLbHw32i4s180sL');
     await page.locator('#camera-remember').check();
     await page.reload();
     assert.equal(await page.locator('#setting-whiteBalance').inputValue(), '3200');
     assert.equal(await page.locator('#camera-qr').isVisible(), false);
+    await page.locator('#setting-frameRate').selectOption('60');
     await page.locator('#camera-model').selectOption('mission-1');
     assert.equal(await page.locator('#camera-generate').isDisabled(), true);
     assert.match(await page.locator('#camera-form-status').textContent(), /combination/);
     await page.locator('#camera-preset').selectOption('cinema');
-    await generate('mVr4Tp24e0d1hH0cLbHw55i4s180sL');
+    await generate('mVr8p24e0d1hH0cLbHw55i4s180sL');
     await page.locator('#camera-mode').selectOption('photo');
     assert.equal(await page.locator('#camera-video-fields').isVisible(), false);
     await page.locator('#setting-rawPhoto').selectOption('on');
     await generate('mPrw55');
     await page.locator('#camera-mode').selectOption('video');
-    await generate('mVr4Tp24e0d1hH0cLbHw55i4s180sL');
+    await generate('mVr8p24e0d1hH0cLbHw55i4s180sL');
     await page.locator('#camera-reset').click();
     assert.equal(await page.locator('#camera-remember').isChecked(), false);
     assert.equal(await page.locator('#camera-qr').isVisible(), false);
@@ -59,7 +60,7 @@ async function run() {
     await page.locator('#setting-stabilization').selectOption('on');
     assert.equal(await page.locator('#camera-generate').isDisabled(), true);
     await page.locator('#camera-ils-lens').check();
-    await generate('mVr4p30e1d1hH0cLbHwAi16s0sL');
+    await generate('mVr8p30e1d1hH0cLbHwAi16s0sL');
     await page.locator('#camera-fullscreen').click();
     assert.equal(await page.locator('#camera-fullscreen').textContent(), 'Exit full screen');
     await page.locator('#camera-fullscreen').click();
@@ -72,7 +73,7 @@ async function run() {
     assert.equal(await page.locator('#camera-qr-panel').evaluate(element => element.classList.contains('expanded')), false);
     await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.testCopiedCommand = text; } } }));
     await page.locator('#camera-copy').click();
-    assert.equal(await page.evaluate(() => window.testCopiedCommand), 'mVr4p30e1d1hH0cLbHwAi16s0sL');
+    assert.equal(await page.evaluate(() => window.testCopiedCommand), 'mVr8p30e1d1hH0cLbHwAi16s0sL');
     // Exercise the clipboard fallback independently of platform clipboard permissions.
     await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined }));
     await page.locator('#camera-copy').click();
@@ -80,7 +81,7 @@ async function run() {
     await page.locator('#camera-model').selectOption('mission-1-pro');
     await page.locator('#camera-preset').selectOption('cinema');
     await page.locator('#camera-advanced').evaluate(element => { element.open = true; });
-    await generate('mVr8Tp24e0d1hH0cLbHw55i4s180sL');
+    await generate('mVr8p24e0d1hH0cLbHw55i4s180sL');
     if (shots) {
       fs.mkdirSync(shots, { recursive: true });
       await page.evaluate(() => window.scrollTo(0, 0));

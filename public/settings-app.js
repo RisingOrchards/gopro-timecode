@@ -78,7 +78,7 @@
   $('camera-mode').addEventListener('change', () => {
     if ($('camera-mode').value === 'photo') {
       videoDraft = { ...settings };
-      settings = { ...P.resolve('custom', model), mode: 'photo', whiteBalance: settings.whiteBalance };
+      settings = { ...P.resolve('custom', model), mode: 'photo', resolution: null, frameRate: null, whiteBalance: settings.whiteBalance };
     } else settings = videoDraft || P.resolve('custom', model);
     preset = 'custom'; changed();
   });

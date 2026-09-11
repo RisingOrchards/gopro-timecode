@@ -2,6 +2,8 @@
 
 ## Camera Settings QR extension — 2026-09-11
 
+- Preset defaults now use 16:9 on all three camera models: Cinema 8K24, Run & Gun 8K30, Slow Motion 4K60, High Frame Rate 4K120 and Custom 4K30. The 34-test suite and browser checks passed again after this change, including Photo isolation from Custom’s new video defaults. The documentation screenshot was refreshed. ILS lens confirmation now follows GoPro’s current supported-lens guidance, including its specifically profiled fisheyes.
+
 - All **34** Node tests passed, including the original 23 timecode tests and 11 settings tests. Settings checks cover explicit preset command fixtures, model/resolution/rate limits, GP-Log2 depth, ISO/shutter/EV rules, ILS lens confirmation, Photo isolation, per-field command changes, malformed stored state, command injection and QR quiet zones.
 - Static validation and build passed for all three pages, including settings scripts, navigation/assets, Open Graph metadata and unchanged vendored encoder checksum.
 - Playwright checks passed using installed Edge in headless mode at 1280, 390 and 320 pixels. They exercised every preset, editing, QR invalidation, model errors, Photo/Video transitions, opt-in storage/reload/reset, ILS confirmation, native fullscreen and the CSS fallback, clipboard API handling with a test sink and manual-copy fallback, and navigation back to a live timecode QR. No page errors or horizontal overflow were observed. Desktop and mobile captures were visually inspected. This is not a physical iPad/Safari test.

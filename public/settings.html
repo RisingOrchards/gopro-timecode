@@ -72,7 +72,10 @@
           <div id="camera-stabilization-field">
             <label for="setting-stabilization">HyperSmooth</label><select id="setting-stabilization" data-setting="stabilization"></select>
             <p class="hint" id="camera-stabilization-hint">On/AutoBoost: 16:9 through 60 fps in this tool.</p>
-            <label class="check-label" id="camera-ils-label" hidden><input type="checkbox" id="camera-ils-lens"> ILS lens is a rectilinear prime</label>
+            <div id="camera-ils-label" hidden>
+              <label class="check-label"><input type="checkbox" id="camera-ils-lens" aria-describedby="camera-ils-hint"> My ILS lens is supported for HyperSmooth</label>
+              <p class="hint" id="camera-ils-hint">For the interchangeable-lens ILS only. Confirm your lens and its camera setup against <a href="./guide.html#ils-lenses">GoPro’s supported lens guidance</a>.</p>
+            </div>
           </div>
           <details class="settings-advanced" id="camera-advanced">
             <summary>Exposure &amp; image controls</summary>

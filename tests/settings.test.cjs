@@ -7,15 +7,15 @@ const G = require('../public/settings-core.js');
 const QR = require('../public/qr.js');
 const encoder = require('../public/vendor/qrcode.js');
 const pro = 'mission-1-pro';
-const blank = () => P.resolve('custom', pro);
+const blank = () => ({ ...P.resolve('custom', pro), resolution: null, frameRate: null });
 
 test('starter commands match independently specified MISSION command fixtures', () => {
   const expected = {
-    cinema: 'mVr8Tp24e0d1hH0cLbHw55i4s180sL',
-    run: 'mVr4p30e1d1hH0cLbHwAi16s0sL',
+    cinema: 'mVr8p24e0d1hH0cLbHw55i4s180sL',
+    run: 'mVr8p30e1d1hH0cLbHwAi16s0sL',
     slow: 'mVr4p60e0d1hH0cLbHw55i8s180sL',
     high: 'mVr4p120e0d1hH0cLbHw55i16s180sL',
-    custom: 'mV'
+    custom: 'mVr4p30'
   };
   for (const [id, command] of Object.entries(expected)) assert.equal(G.buildGoProCommand(P.resolve(id, pro), pro), command);
 });
@@ -31,11 +31,12 @@ test('every preset resolves without mutation for all three camera models', () =>
   for (const model of Object.keys(C.models)) for (const id of Object.keys(P.definitions)) {
     const first = P.resolve(id, model), second = P.resolve(id, model);
     assert.deepEqual(G.validate(first, model), []);
+    assert.ok(['8k', '4k'].includes(first.resolution), id + ' must default to 16:9 on ' + model);
     assert.ok(G.buildGoProCommand(first, model).startsWith('mV'));
     first.whiteBalance = 'auto';
     assert.deepEqual(second, P.resolve(id, model));
   }
-  assert.equal(P.resolve('cinema', 'mission-1').resolution, '4k-open');
+  assert.equal(P.resolve('cinema', 'mission-1').resolution, '8k');
   assert.equal(P.resolve('run', 'mission-1-pro-ils').stabilization, 'off');
 });
 test('documented resolution/rate boundaries differ between MISSION and PRO', () => {
@@ -73,10 +74,10 @@ test('shutter limits and EV interactions reject combinations the tool cannot rep
   assert.match(G.shutterHint(high), /1\/240/);
 });
 test('stabilization coverage and ILS lens confirmation are checked by the builder', () => {
-  assert.throws(() => G.buildGoProCommand({ ...P.resolve('cinema', pro), stabilization: 'on' }, pro), /not been verified/);
+  assert.throws(() => G.buildGoProCommand({ ...P.resolve('cinema', pro), resolution: '8k-open', stabilization: 'on' }, pro), /not been verified/);
   assert.throws(() => G.buildGoProCommand({ ...P.resolve('high', pro), stabilization: 'auto' }, pro), /not been verified/);
-  assert.throws(() => G.buildGoProCommand(P.resolve('run', pro), 'mission-1-pro-ils'), /rectilinear/);
-  assert.equal(G.buildGoProCommand({ ...P.resolve('run', pro), ilsLens: true }, 'mission-1-pro-ils'), 'mVr4p30e1d1hH0cLbHwAi16s0sL');
+  assert.throws(() => G.buildGoProCommand(P.resolve('run', pro), 'mission-1-pro-ils'), /supported for HyperSmooth/);
+  assert.equal(G.buildGoProCommand({ ...P.resolve('run', pro), ilsLens: true }, 'mission-1-pro-ils'), 'mVr8p30e1d1hH0cLbHwAi16s0sL');
 });
 test('editing each preset field changes only its corresponding command component', () => {
   const base = P.resolve('cinema', pro);
