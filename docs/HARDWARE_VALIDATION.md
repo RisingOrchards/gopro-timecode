@@ -1,6 +1,6 @@
 # Field testing and hardware measurements
 
-**Field tested on a real MISSION 1 shoot.** The project owner confirmed successful production use on 2026-09-11.
+**Timecode QR is field tested on a real MISSION 1 shoot.** The project owner confirmed successful production use on 2026-09-11.
 
 ## Reported results
 
@@ -8,8 +8,11 @@
 |---|---|
 | 2026-09-09 | A new, out-of-the-box MISSION 1 accepted the app's time QR with stock firmware. No GoPro Labs installation was required. |
 | 2026-09-11 | The project owner reported: “we used it for a shoot and it worked perfectly.” |
+| 2026-09-11 | Camera Settings QR scan on original GoPro firmware displayed “Timecode not synced”; the owner confirmed no settings changed. This was a failed configuration scan, separate from the successful Timecode QR result. Exact command and numeric firmware version were not supplied. |
 
 These dates record when the results were reported. The successful shoot establishes practical use of the workflow. Exact firmware versions, per-mode clip metadata and numerical offset/drift measurements were not supplied, so the report does not define a frame-accuracy tolerance for every setup.
+
+Camera Settings QR uses GoPro Labs firmware. Its successful acceptance on Labs firmware has not yet been field tested. The stock-firmware error is consistent with a timecode-only QR reader rejecting a settings payload; the exact firmware error path has not been independently confirmed. See [settings firmware requirements and troubleshooting](../public/guide.html#settings-timecode-error).
 
 ## Measure your setup
 

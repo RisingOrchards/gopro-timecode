@@ -37,6 +37,8 @@ Use the **Timecode QR** tab for the clock workflow below. Use **Camera Settings 
 
 ## Camera Settings QR
 
+**Requires GoPro Labs firmware for your camera model.** GoPro documents configuration QR commands as a [Labs firmware feature](https://gopro.com/en/us/info/gopro-labs). The successful stock-firmware timecode workflow does not enable these settings commands. With stock firmware, use the displayed values as a manual setup reference, then jam with Timecode QR. [Firmware downloads](https://gopro.github.io/labs/).
+
 [Open Camera Settings QR](https://timecode.igorbox.com/settings.html). Set your **Capture target** at the top (default **8K 16:9 / 24 fps**), choose MISSION 1, MISSION 1 PRO or MISSION 1 PRO ILS, then pick a preset and edit any field. Generate displays a large static QR and the exact command. Copy Command, Reset and fullscreen are included; changing settings clears the previous QR. Optional Remember settings stores the target and form locally and always restores with the QR off.
 
 **Production / Cinema**, **Run & Gun** and **Custom** follow the target: choose 4K30 and all three use 4K30; leave the default and they use 8K24. **Slow Motion** uses 4K60 and **High Frame Rate** uses 4K120, with a visible note whenever they override the target. All defaults use 16:9. The four configured presets use 10-bit GP-Log2, High bitrate and Low sharpness; choosing Custom starts with just the target and leaves other settings unchanged on-camera. Fields remain editable, including Open Gate where supported.
@@ -47,7 +49,9 @@ Changing the target in Custom replaces resolution and frame rate while preservin
 
 Supported video controls include resolution/aspect, rate modes through 240, depth, color, Standard/High bitrate, shutter angle, ISO ceiling or fixed ISO, discrete WB, sharpness, EV, HyperSmooth and denoise. Photo offers mode, RAW, WB and EV. Compatibility validation checks the model, resolution/rate pairs, GP-Log2 depth, ISO/shutter/EV interactions and ILS lens requirements. The new settings tool has documented command support and software/browser tests; its camera scan acceptance is separate from the field-tested timecode tool.
 
-**Key differences from camera-menu shorthand:** 24/30/60 mode labels follow existing camera timing and may be fractional. Shutter uses documented angles, not direct speed extensions. WB includes 5500K rather than an invented 5600K command. Independent ISO minimum, Max/custom Mbps and unverified stabilization combinations are omitted. Use current model-specific Labs firmware as the documented settings baseline; stock timecode acceptance does not establish every settings command.
+**Key differences from camera-menu shorthand:** 24/30/60 mode labels follow existing camera timing and may be fractional. Shutter uses documented angles, not direct speed extensions. WB includes 5500K rather than an invented 5600K command. Independent ISO minimum, Max/custom Mbps and unverified stabilization combinations are omitted. Settings QR requires model-specific Labs firmware; Timecode QR works on stock MISSION 1 firmware as field tested.
+
+**“Timecode not synced” while scanning a settings QR:** on 2026-09-11 the project owner reported this message on original GoPro firmware, with no settings applied. Treat this as a failed configuration scan. The likely explanation is the stock timecode reader rejecting a Labs settings command; the exact firmware error path has not been independently confirmed. Set capture options manually on stock firmware, or use model-matched Labs firmware for configuration QR. See [troubleshooting](public/guide.html#settings-timecode-error).
 
 See [camera-settings research, preset commands and omissions](docs/CAMERA_SETTINGS.md) and the [usage guide](public/guide.html#camera-settings). Reset restores the local form; it sends no camera-reset command. No backend or new package dependency is added.
 

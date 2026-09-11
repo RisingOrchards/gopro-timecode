@@ -84,7 +84,7 @@
     $('camera-ils-lens').checked = settings.ilsLens === true;
     $('camera-iso-label').textContent = settings.isoMode === 'fixed' ? 'Fixed ISO (min = max)' : 'ISO maximum';
     $('camera-shutter-hint').textContent = G.shutterHint(settings);
-    $('camera-firmware-note').textContent = 'Documentation baseline: ' + C.models[model].firmware + '.';
+    $('camera-firmware-note').textContent = 'Settings QR firmware: ' + C.models[model].firmware + '.';
     const errors = G.validate(settings, model);
     $('camera-form-status').textContent = errors.join(' ') || 'Ready to generate. Review the camera acknowledgment after scanning.';
     $('camera-form-status').classList.toggle('error', errors.length > 0);

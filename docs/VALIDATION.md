@@ -2,6 +2,8 @@
 
 ## Camera Settings QR extension — 2026-09-11
 
+- A configuration QR scan on original GoPro firmware returned “Timecode not synced” and applied no settings, as confirmed by the project owner. The settings page, README and guide now state the GoPro Labs firmware requirement explicitly and provide a manual-settings workflow for stock firmware. This records a failed stock configuration scan, not a failure of the field-tested Timecode QR. Successful configuration scanning on Labs firmware remains unverified on hardware.
+
 - Capture target defaults to 8K 16:9 / 24 fps. Cinema, Run & Gun and Custom inherit it on all three models; Slow Motion keeps 4K60 and High Frame Rate keeps 4K120 with visible override feedback. All supported model/target combinations were exercised for the three target-following presets. The documentation screenshot was refreshed. ILS lens confirmation follows GoPro’s current supported-lens guidance, including its specifically profiled fisheyes.
 
 - All **37** Node tests passed, including the original 23 timecode tests and 14 settings tests. Settings checks cover explicit preset command fixtures, target inheritance and overrides, model/resolution/rate limits, GP-Log2 depth, ISO/shutter/EV rules, ILS lens confirmation, Photo isolation, per-field command changes, versioned state migration, malformed stored state, command injection and QR quiet zones.

@@ -2,6 +2,10 @@
 
 Research date: **2026-09-11**. This extension adds a second static page using the existing QR encoder and visual style. Timecode's clock/reference logic is unchanged. The earlier shoot result applies to Timecode QR; settings commands still need a camera acceptance test.
 
+**Firmware requirement:** settings QR uses GoPro Labs firmware for the selected camera. GoPro’s [Labs overview](https://gopro.com/en/us/info/gopro-labs) explicitly describes special firmware for configuration QR, and its [control index](https://gopro.github.io/labs/control/) lists MISSION configuration under Labs-enabled cameras. The project’s successful stock-firmware timecode tests do not establish support for these configuration commands.
+
+**Hardware report, 2026-09-11:** the project owner scanned a configuration QR on original GoPro firmware and saw “Timecode not synced”; no settings changed. The exact command and numeric firmware version were not provided. The likely explanation is the stock timecode reader rejecting a Labs settings payload, but the exact firmware error path has not been independently confirmed. The UI now states the Labs requirement before the form and links to troubleshooting. On stock firmware, set capture options manually and use Timecode QR to jam. Do not interpret this failed scan as successful camera-settings validation.
+
 ## Source decisions
 
 - [GoPro MISSION configurator](https://gopro.github.io/labs/control/mission/) supplies MISSION-specific tokens and the depth/HLG/color choices. Its 8-bit choices omit GP-Log2; the 10-bit, non-HLG choices include it. Its shutter/ISO selection logic hides EV when both are explicitly set and shutter is manual. The HTML retrieved on the research date had SHA-256 `30a51c67429173cf5969bf2023a8e710e4f192f972898a0ac802ba7f4511602e`. No GoPro implementation code is bundled.
