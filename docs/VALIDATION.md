@@ -1,5 +1,11 @@
 # Software validation — 2026-09-09
 
+## Timecode capture-rate fix — 2026-09-11
+
+The owner reported that changing Camera capture rate stopped the timecode and prevented Start QR. The capture selector was incorrectly connected to the handler that invalidates an edited time reference. It now updates only rate information and the capture annotation; it preserves the applied clock, offset, timezone, running Jam anchor and live/paused QR state.
+
+Three regression tests reproduced the failure before the fix and passed afterward. A fourth verifies that capture edits cannot revive an invalidated reference. All **42** tests passed, along with the static build and headless Edge browser checks. Browser checks cover choosing a rate before Start QR, changing it during live Device Clock and Jam output, preserving a pause, and requiring a new match after changing the actual Jam source rate. This is software verification; a physical camera/browser retest was not reported.
+
 ## Camera Settings QR extension — 2026-09-11
 
 - A configuration QR scan on original GoPro firmware returned “Timecode not synced” and applied no settings, as confirmed by the project owner. The settings page, README and guide now state the GoPro Labs firmware requirement explicitly and provide a manual-settings workflow for stock firmware. This records a failed stock configuration scan, not a failure of the field-tested Timecode QR. Successful configuration scanning on Labs firmware remains unverified on hardware.
@@ -8,7 +14,7 @@
 
 - Streaming / Live defaults to 4K 16:9, target rate up to 60 fps, Natural color, 10-bit, 5500K, 180° shutter, Auto ISO up to 800 and stabilization Off. All three models and every target rate were exercised, including explicit 60 fps overrides for higher targets. Browser checks cover persistence, Photo/Video transitions, editable color, QR invalidation and desktop/mobile layout. HDMI setup remains manual; successful HDMI capture has not been verified on hardware. The source references and setup steps are in the guide.
 
-- All **38** Node tests passed, including the original 23 timecode tests and 15 settings tests. Settings checks cover explicit preset command fixtures, target inheritance and overrides, model/resolution/rate limits, GP-Log2 depth, ISO/shutter/EV rules, ILS lens confirmation, Photo isolation, per-field command changes, versioned state migration, malformed stored state, command injection and QR quiet zones.
+- All **42** Node tests passed: 27 timecode tests and 15 settings tests. Settings checks cover explicit preset command fixtures, target inheritance and overrides, model/resolution/rate limits, GP-Log2 depth, ISO/shutter/EV rules, ILS lens confirmation, Photo isolation, per-field command changes, versioned state migration, malformed stored state, command injection and QR quiet zones.
 - Static validation and build passed for all three pages, including settings scripts, navigation/assets, Open Graph metadata and unchanged vendored encoder checksum.
 - Playwright checks passed using installed Edge in headless mode at 1280, 390 and 320 pixels. They exercised every preset, shared targets and special overrides, custom edits, QR invalidation, incompatible target/model changes, Photo/Video target transitions, opt-in storage/reload/reset and legacy migration, ILS confirmation, native fullscreen and the CSS fallback, clipboard API handling with a test sink and manual-copy fallback, and navigation back to a live timecode QR. No page errors or horizontal overflow were observed. Desktop and mobile captures were visually inspected. This is not a physical iPad/Safari test.
 - An independent jsQR decoder read **80** settings raster fixtures: six presets on three models, a longer advanced command and a Photo command, each at native size and 390, 280 and 220 pixels. All decoded strings matched the generated command.

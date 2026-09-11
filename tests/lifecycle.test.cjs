@@ -45,13 +45,76 @@ test('QR starts hidden, animates fresh timestamps, and disappears on pause', () 
   assert.match(f.el('payload').textContent, /QR off/);
   const count = f.renders; f.step(); assert.equal(f.renders, count);
 });
-test('editing a rate hides QR and requires an explicit new reference', () => {
+test('editing the Jam source timecode rate hides QR and requires an explicit new reference', () => {
   const f = fixture(); f.el('source').value = 'manual'; f.el('reference-tc').value = '12:00:00:00';
   f.event('source','input'); f.event('reference-form','submit'); f.live();
   f.el('rate').value = '25'; f.event('rate','input');
   assert.equal(f.el('qr').hidden, true); assert.equal(f.el('toggle').disabled, true);
   f.event('reference-form','submit'); assert.equal(f.el('toggle').disabled, false);
   assert.equal(f.el('rate-label').textContent, '25');
+});
+
+test('capture-rate changes keep Device Clock and live QR running with the applied offset and zone', () => {
+  const f = fixture();
+  f.el('zone').value = '345'; f.el('offset').value = '37.5';
+  f.event('reference-form', 'submit'); f.live();
+  for (const capture of Object.keys(T.CAPTURE_RATES)) {
+    f.el('capture-rate').value = capture; f.event('capture-rate', 'input');
+    assert.equal(f.el('toggle').disabled, false, capture);
+    assert.equal(f.el('qr').hidden, false, capture);
+    assert.equal(f.el('rate-label').textContent, '30');
+    f.step();
+    assert.equal(f.payload, T.payload(f.wallTime + 37.5, 345));
+    assert.equal(f.el('timecode').textContent, T.timecode(f.wallTime + 37.5, '30', 345));
+  }
+});
+
+test('choosing a capture rate leaves Start QR available and preserves an intentional pause', () => {
+  const f = fixture();
+  f.el('capture-rate').value = '24'; f.event('capture-rate', 'input');
+  assert.equal(f.el('toggle').disabled, false);
+  assert.equal(f.el('qr').hidden, true);
+  const before = f.el('timecode').textContent;
+  f.step(100);
+  assert.notEqual(f.el('timecode').textContent, before);
+  assert.notEqual(f.el('timecode').textContent, '--:--:--:--');
+  f.live(); assert.equal(f.el('qr').hidden, false);
+  f.event('toggle');
+  f.el('capture-rate').value = '240'; f.event('capture-rate', 'input');
+  assert.equal(f.el('toggle').disabled, false);
+  const renders = f.renders; f.step();
+  assert.equal(f.renders, renders);
+  assert.equal(f.el('qr').hidden, true);
+  f.live(); assert.equal(f.el('qr').hidden, false);
+});
+
+test('capture-rate edits preserve the running Jam anchor rather than applying the old manual entry again', () => {
+  const f = fixture();
+  f.el('source').value = 'manual'; f.el('rate').value = '59.94'; f.event('source', 'input');
+  f.el('reference-date').value = '2026-09-09'; f.el('reference-tc').value = '01:00:00:00';
+  f.el('offset').value = '100';
+  const appliedWall = f.wallTime, zone = Number(f.el('zone').value);
+  const anchor = T.epochForTimecode('2026-09-09', '01:00:00:00', '59.94', zone) + 100;
+  f.event('reference-form', 'submit'); f.live();
+  f.step(100);
+  f.el('capture-rate').value = '240'; f.event('capture-rate', 'input'); f.step();
+  assert.equal(f.el('qr').hidden, false);
+  assert.equal(f.el('rate-label').textContent, '59.94 NDF');
+  assert.equal(f.payload, T.payload(anchor + f.wallTime - appliedWall, zone));
+  assert.equal(f.el('timecode').textContent, T.timecode(anchor + f.wallTime - appliedWall, '59.94', zone));
+});
+
+test('capture-rate edits cannot revive an unapplied or invalidated reference', () => {
+  for (const reason of ['offset', 'manual', 'hidden', 'stall']) {
+    const f = fixture(); f.live();
+    if (reason === 'offset') { f.el('offset').value = '100'; f.event('offset', 'input'); }
+    if (reason === 'manual') { f.el('source').value = 'manual'; f.event('source', 'input'); }
+    if (reason === 'hidden') { f.hide(); f.show(); }
+    if (reason === 'stall') f.step(300);
+    f.el('capture-rate').value = '24'; f.event('capture-rate', 'input'); f.event('toggle'); f.step();
+    assert.equal(f.el('toggle').disabled, true, reason);
+    assert.equal(f.el('qr').hidden, true, reason);
+  }
 });
 test('backgrounding and returning cannot silently revive a stale QR', () => {
   const f = fixture(); f.live(); f.hide(); f.show(); f.step(5000);

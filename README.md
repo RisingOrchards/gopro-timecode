@@ -65,6 +65,8 @@ See [camera-settings research, preset commands and omissions](docs/CAMERA_SETTIN
 
 **Capture fps and timecode fps are separate.** For example, 240 fps capture and a 60 fps Jam source gives four captured frames per timecode frame. The capture choice displays this relationship without changing the timecode or QR math. Under Jam, set Source Timecode Rate to the actual source rate. This version supports source labels through 60 fps and NDF only. Do not select NDF against a drop-frame source. The Device Clock readout's 30 fps does not change camera recording rates: the QR contains date/time, not a frame-rate command. Verify original and slow-motion/conformed clips separately.
 
+Changing **Camera capture rate** keeps the reference clock running. A live QR continues updating; a paused QR stays paused, with Start QR available. The applied reference, offset and timezone are preserved in both Device Clock and Jam. Changing the actual **Source Timecode Rate** in Jam still requires a fresh manual match; changing capture rate cannot reactivate an invalidated reference.
+
 1. Use your MISSION 1 with its stock firmware and select the intended capture mode. Check its acknowledgment of the live QR. Set the capture selector to the actual rate; confirm original test-clip metadata because menu labels can hide fractional rates.
 2. Leave **Device Clock** selected to use the current time on the device showing this page. Confirm the production UTC offset and start with a **0 ms** reference offset.
 3. To match a different reference, select **Jam**, set **Source Timecode Rate**, enter a future timecode and press **Jam now** when that source reaches it. Manual matching includes reaction time.
@@ -135,7 +137,7 @@ QR jam establishes an initial time relationship; cameras then free-run. It does 
 
 No ±1-frame or hourly-drift guarantee is made. Measure start/end slates over 30–60 minutes with your exact firmware, display and settings. Compare initial offset separately from the change over time. Repeated measurements determine the usable re-jam interval. Example only: 10 ppm relative drift is 36 ms/hour, approximately 1.08 frames at 29.97.
 
-QR updates follow animation frames with fresh timestamps. There is no invented latency compensation. The QR has error correction M and a four-module white quiet zone. It is hidden on pause, edits, backgrounding, restore, clock jumps over 250 ms, display stalls over 200 ms and rendering over 100 ms. A browser/OS freeze can retain old pixels until code runs again, so these are detection measures, not a real-time guarantee. Do not scan a frozen display. Millisecond fields do not imply millisecond physical accuracy.
+QR updates follow animation frames with fresh timestamps. There is no invented latency compensation. The QR has error correction M and a four-module white quiet zone. It is hidden on pause, reference edits, backgrounding, restore, clock jumps over 250 ms, display stalls over 200 ms and rendering over 100 ms. The informational Camera capture rate control does not pause it. A browser/OS freeze can retain old pixels until code runs again, so these are detection measures, not a real-time guarantee. Do not scan a frozen display. Millisecond fields do not imply millisecond physical accuracy.
 
 ## Premiere Pro
 

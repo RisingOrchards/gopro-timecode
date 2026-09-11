@@ -163,7 +163,14 @@
     requestAnimationFrame(tick);
   }
   el['reference-form'].addEventListener('submit', applyReference);
-  for (const input of [el.rate, el['capture-rate'], el.zone, el.offset, el['reference-date'], el['reference-tc']]) input.addEventListener('input', dirty);
+  for (const input of [el.rate, el.zone, el.offset, el['reference-date'], el['reference-tc']]) input.addEventListener('input', dirty);
+  // Capture cadence is informational; it does not change the jammed clock or QR.
+  el['capture-rate'].addEventListener('input', () => {
+    try {
+      updateRateNote();
+      if (valid && reference) reference.capture = el['capture-rate'].value;
+    } catch (e) { stop('Select a supported camera capture rate, then apply the reference.', true); message(e.message, true); }
+  });
   el.source.addEventListener('input', () => {
     dirty();
     if (el.source.value === 'device') applyReference();
