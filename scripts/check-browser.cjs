@@ -27,6 +27,39 @@ async function run() {
       await page.locator('#camera-preset').selectOption(id);
       await generate(G.buildGoProCommand(P.resolve(id, 'mission-1-pro'), 'mission-1-pro'));
     }
+    await page.locator('#camera-preset').selectOption('live');
+    assert.match(await page.locator('#camera-capture-status').textContent(), /Streaming \/ Live overrides your target/);
+    assert.equal(await page.locator('#camera-live-note').isVisible(), true);
+    await generate('mVr4p24e0d1hH0cNbHw55i8s180sL');
+    await page.locator('#target-frameRate').selectOption('30');
+    assert.equal(await page.locator('#camera-qr').isVisible(), false);
+    await generate('mVr4p30e0d1hH0cNbHw55i8s180sL');
+    await page.locator('#target-resolution').selectOption('4k');
+    await page.locator('#target-frameRate').selectOption('120');
+    assert.equal(await page.locator('#target-frameRate').inputValue(), '120');
+    assert.equal(await page.locator('#setting-frameRate').inputValue(), '60');
+    assert.match(await page.locator('#camera-capture-status').textContent(), /higher targets use 60 fps/);
+    await generate('mVr4p60e0d1hH0cNbHw55i8s180sL');
+    await page.locator('#camera-remember').check();
+    await page.reload();
+    assert.equal(await page.locator('#camera-preset').inputValue(), 'live');
+    assert.equal(await page.locator('#target-frameRate').inputValue(), '120');
+    assert.equal(await page.locator('#camera-qr').isVisible(), false);
+    await page.locator('#camera-mode').selectOption('photo');
+    assert.equal(await page.locator('#camera-live-note').isVisible(), false);
+    await page.locator('#target-frameRate').selectOption('25');
+    await page.locator('#camera-mode').selectOption('video');
+    assert.equal(await page.locator('#camera-preset').inputValue(), 'live');
+    await generate('mVr4p25e0d1hH0cNbHw55i8s180sL');
+    await page.locator('#setting-colorProfile').selectOption('log2');
+    assert.equal(await page.locator('#camera-preset').inputValue(), 'custom');
+    assert.equal(await page.locator('#camera-qr').isVisible(), false);
+    await generate('mVr4p25e0d1hH0cLbHw55i8s180sL');
+    await page.locator('#target-frameRate').selectOption('24');
+    await page.locator('#target-resolution').selectOption('8k');
+    await page.locator('#camera-reset').click();
+    await page.locator('#camera-preset').selectOption('custom');
+    await generate('mVr8p24');
     assert.equal(await page.locator('#target-resolution').inputValue(), '8k');
     assert.equal(await page.locator('#target-frameRate').inputValue(), '24');
     await page.locator('#target-resolution').selectOption('4k');
@@ -156,6 +189,12 @@ async function run() {
       fs.mkdirSync(shots, { recursive: true });
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: path.join(shots, 'camera-settings-desktop.png'), fullPage: true });
+      await page.locator('#camera-preset').selectOption('live');
+      await generate('mVr4p24e0d1hH0cNbHw55i8s180sL');
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({ path: path.join(shots, 'streaming-live-desktop.png'), fullPage: true });
+      await page.locator('#camera-preset').selectOption('cinema');
+      await generate('mVr8p24e0d1hH0cLbHw55i4s180sL');
     }
     await page.locator('#camera-advanced').evaluate(element => { element.open = false; });
     for (const width of [390, 320]) {
@@ -169,6 +208,12 @@ async function run() {
         await page.screenshot({ path: path.join(shots, 'camera-settings-mobile.png'), fullPage: true });
         await page.screenshot({ path: path.join(shots, 'camera-settings-mobile-viewport.png') });
       }
+      await page.locator('#camera-preset').selectOption('live');
+      await generate('mVr4p24e0d1hH0cNbHw55i8s180sL');
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Live preset overflow at ' + width);
+      if (shots && width === 390) await page.screenshot({ path: path.join(shots, 'streaming-live-mobile.png'), fullPage: true });
+      await page.locator('#camera-preset').selectOption('cinema');
+      await generate('mVr8p24e0d1hH0cLbHw55i4s180sL');
     }
     await page.setViewportSize({ width: 1280, height: 1000 });
     await page.goto(base + '/');

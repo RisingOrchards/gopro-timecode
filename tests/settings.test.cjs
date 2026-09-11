@@ -13,6 +13,7 @@ test('starter commands match independently specified MISSION command fixtures', 
   const expected = {
     cinema: 'mVr8p24e0d1hH0cLbHw55i4s180sL',
     run: 'mVr8p24e1d1hH0cLbHwAi16s0sL',
+    live: 'mVr4p24e0d1hH0cNbHw55i8s180sL',
     slow: 'mVr4p60e0d1hH0cLbHw55i8s180sL',
     high: 'mVr4p120e0d1hH0cLbHw55i16s180sL',
     custom: 'mVr8p24'
@@ -77,6 +78,20 @@ test('special presets keep explicit capture overrides; unsupported normal target
   assert.equal(P.resolve('run', pro, { resolution: '4k', frameRate: '120' }).stabilization, 'off');
   assert.equal(P.resolve('run', pro, { resolution: '8k-open', frameRate: '24' }).stabilization, 'off');
   assert.deepEqual(target, { resolution: '8k', frameRate: '60' });
+});
+
+test('Streaming / Live keeps 4K, follows target rates through 60 and emits capture settings only', () => {
+  for (const model of Object.keys(C.models)) for (const frameRate of ['24', '25', '30', '50', '60', '100', '120', '200', '240']) {
+    const target = Object.freeze({ resolution: '8k', frameRate });
+    const settings = P.resolve('live', model, target);
+    const actualRate = Number(frameRate) > 60 ? '60' : frameRate;
+    assert.equal(G.buildGoProCommand(settings, model), 'mVr4p' + actualRate + 'e0d1hH0cNbHw55i8s180sL');
+    assert.deepEqual(G.decodeState(G.encodeState(settings, model, target, 'live')), { model, settings, target, preset: 'live' });
+  }
+  const live = P.resolve('live', pro, { resolution: '4k-open', frameRate: '30' });
+  assert.equal(live.resolution, '4k');
+  assert.equal(G.buildGoProCommand({ ...live, colorProfile: 'log2' }, pro), 'mVr4p30e0d1hH0cLbHw55i8s180sL');
+  assert.equal(P.resolve('live', pro).colorProfile, 'natural');
 });
 test('incomplete selections, GP-Log2 in 8-bit and unverified features are rejected', () => {
   const invalid = [

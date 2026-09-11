@@ -11,6 +11,7 @@ Research date: **2026-09-11**. This extension adds a second static page using th
 - [GoPro MISSION configurator](https://gopro.github.io/labs/control/mission/) supplies MISSION-specific tokens and the depth/HLG/color choices. Its 8-bit choices omit GP-Log2; the 10-bit, non-HLG choices include it. Its shutter/ISO selection logic hides EV when both are explicitly set and shutter is manual. The HTML retrieved on the research date had SHA-256 `30a51c67429173cf5969bf2023a8e710e4f192f972898a0ac802ba7f4511602e`. No GoPro implementation code is bundled.
 - [Settings reference](https://gopro.github.io/labs/control/settings/) and [command language](https://gopro.github.io/labs/control/tech/) verify token spelling and ordered concatenation. Mode comes first so settings apply to the selected capture mode. Numeric FPS tokens select camera modes; they do not independently select integer versus fractional timing.
 - [MISSION model comparison](https://gopro.com/en/us/shop/buy-cameras/mission-1-series) provides separate MISSION 1 / PRO / PRO ILS resolution-rate lists. These become explicit capability tables, not a maximum-rate heuristic. Vertical modes are also present in the official MISSION configurator.
+- [MISSION Media Mod](https://gopro.com/en/us/shop/mounts-accessories/camera-media-mod/AGFMD-001.html) specifies micro-HDMI output up to 4K60. This informs the Streaming / Live preset’s capture-rate ceiling, not a promise of the negotiated HDMI signal. The [Labs matrix](https://gopro.github.io/labs/) marks HDMI display settings unavailable for MISSION and the [command reference](https://gopro.github.io/labs/control/tech/) scopes `HDMI` to HERO8–13. No `HDMI` command is emitted; clean output and output format are configured on-camera.
 - [MISSION PRO ILS announcement](https://investor.gopro.com/press-releases/press-release-details/2026/GoPro-Launches-MISSION-1-PRO-ILS-the-Worlds-Smallest-Most-Rugged-Compact-Cinema-Camera-with-Interchangeable-Lenses/default.aspx) lists supported rectilinear MFT lenses and five specifically profiled fisheye lenses in footnote 3. The checkbox confirms a supported lens and camera setup; it is not limited to prime lenses. ILS shares the PRO capture table but has a separate lens confirmation rule.
 - [Release notes](https://gopro.github.io/labs/control/notes/) record the MISSION 2.02.70 Protune/metadata fix, the earlier photo WB/EV fix, and the ILS 3.00.70 removal of broken EXPQ/EXPN/EXPX. These are the documentation baselines for this tool. A blanket claim that stock firmware requires Labs for timecode would contradict the project's field report; no such claim is made.
 - [Extensions](https://gopro.github.io/labs/control/extensions/) distinguishes temporary/permanent metadata and documents ALLI/24HZ. This first settings tool emits no metadata extensions. Existing camera timing therefore remains in effect.
@@ -43,17 +44,20 @@ Stabilization coverage is intentionally narrower than the camera's possible feat
 
 ## Starter presets
 
-The global **Capture target** defaults to **8K 16:9 / 24 fps**. Cinema, Run & Gun and Custom inherit it; Slow Motion and High Frame Rate explicitly override it. Every preset defaults to 16:9 and resolves into a fresh, editable form. Open Gate remains available as a target or manual choice. Editing any field changes the selector to Custom. The four configured video presets all use 10-bit GP-Log2, High bitrate and Low sharpness. Noise reduction and EV are left unchanged. ISO is an auto ceiling, not an asserted 100 minimum.
+The global **Capture target** defaults to **8K 16:9 / 24 fps**. Cinema, Run & Gun and Custom inherit it; Streaming / Live keeps 4K and follows the rate up to 60 fps; Slow Motion and High Frame Rate have fixed overrides. Every preset defaults to 16:9 and resolves into a fresh, editable form. Open Gate remains available as a target or manual choice. Editing any field changes the selector to Custom. The five configured video presets all use 10-bit, High bitrate and Low sharpness. Streaming / Live uses Natural color; the other four use GP-Log2. Noise reduction and EV are left unchanged. ISO is an auto ceiling, not an asserted 100 minimum.
 
 | Preset | Resolution / rate mode | Shutter | WB | ISO ceiling | HyperSmooth |
 |---|---|---|---|---|---|
 | Production / Cinema | Target (default 8K 16:9 / 24) | 180° | 5500K | 400 | Off |
 | Run & Gun | Target (default 8K 16:9 / 24) | Auto | Auto | 1600 | On; Off initially on ILS or outside verified coverage |
+| Streaming / Live | 4K 16:9 / target rate, capped at 60 (default 24) | 180° | 5500K | 800 | Off |
 | Slow Motion | 4K 16:9 / 60 | 180° | 5500K | 800 | Off |
 | High Frame Rate | 4K 16:9 / 120 | 180° | 5500K | 1600 | Off |
 | Custom | Target (default 8K 16:9 / 24) | Unchanged | Unchanged | Unchanged | Unchanged |
 
 Changing the target updates the active normal preset. In Custom it changes only resolution and frame rate, preserving other edits. Slow Motion and High Frame Rate keep their capture overrides while selected; once edited into Custom, subsequent target changes update their resolution and rate too. The UI compares the actual capture settings with the target and explicitly explains differences. A 4K30 target therefore produces 4K30 Cinema, Run & Gun and Custom commands, while the two special presets remain 4K60 / 4K120. The angle-based shutter follows the resulting frame rate automatically.
+
+Streaming / Live always starts in 4K 16:9. A target rate of 24, 25, 30, 50 or 60 is inherited; 100/120/200/240 targets explicitly resolve to 60. That override is visible, persists with the selected preset, and never changes the global target itself. Once edited into Custom, the normal Custom target behavior applies. Natural is an application default for live use without a log LUT, not a GoPro-mandated setting. Users can choose GP-Log2 for a live LUT pipeline. The 10-bit and High bitrate selections are camera recording controls; HDMI format, color and bit depth must be verified at the capture device. The preset does not configure an HDMI link or encoder, start a stream, disable sleep, or change audio. See the [HDMI streaming workflow](../public/guide.html#streaming-live).
 
 Unsupported capture pairs remain visible and block command generation instead of silently changing the target. A special preset can still generate its supported override when the target is unavailable on the selected model; both the unavailable target and actual override are shown. Run & Gun switches HyperSmooth Off when its target falls outside the tool’s verified stabilization coverage, with an explanation. Custom stabilization choices are validated without being changed automatically.
 
@@ -67,6 +71,9 @@ mVr8p24e0d1hH0cLbHw55i4s180sL
 
 Run & Gun
 mVr8p24e1d1hH0cLbHwAi16s0sL
+
+Streaming / Live
+mVr4p24e0d1hH0cNbHw55i8s180sL
 
 Slow Motion
 mVr4p60e0d1hH0cLbHw55i8s180sL
