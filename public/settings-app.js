@@ -50,7 +50,7 @@
     for (const item of $('target-frameRate').options) item.disabled = !C.models[model].modes[target.resolution]?.includes(item.value);
     const available = C.models[model].modes[target.resolution]?.includes(target.frameRate);
     $('camera-target-status').textContent = photo ? 'Video target saved for when you return to Video mode.' : available
-      ? 'Cinema, Run & Gun and Custom follow this target. Streaming / Live keeps 4K, up to 60 fps. Slow Motion and High Frame Rate use fixed capture settings.'
+      ? 'Cinema, Run & Gun and Custom follow this target. Streaming / Live keeps 1080p, up to 60 fps. Slow Motion and High Frame Rate use fixed capture settings.'
       : 'This target is unavailable on ' + C.models[model].label + '. Choose a supported pair, or review the preset override below.';
     $('camera-target-status').classList.toggle('error', !photo && !available);
     const differs = settings.resolution !== target.resolution || settings.frameRate !== target.frameRate;
@@ -58,7 +58,7 @@
     let note = differs
       ? (special ? P.definitions[preset].label + ' overrides your target: ' : 'Custom override: ') + captureLabel(settings) + '. Target: ' + captureLabel(target) + '.'
       : 'Matches your target: ' + captureLabel(target) + '.';
-    if (preset === 'live') note += ' Live keeps 4K 16:9 and follows the target rate through 60 fps; higher targets use 60 fps.';
+    if (preset === 'live') note += ' Live keeps 1080p 16:9 and follows the target rate through 60 fps; higher targets use 60 fps.';
     else if (special) note += ' This preset keeps its capture settings when the target changes.';
     if (preset === 'run' && settings.stabilization === 'off') note += C.models[model].ils
       ? ' HyperSmooth starts Off on ILS; confirm a supported lens before enabling it.'

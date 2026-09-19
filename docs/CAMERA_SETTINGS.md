@@ -1,12 +1,12 @@
 # Camera Settings QR
 
-Research date: **2026-09-11**. This extension adds a second static page using the existing QR encoder and visual style. Timecode's clock/reference logic is unchanged. The earlier shoot result applies to Timecode QR; a subsequent owner report confirms Camera Settings QR works after a firmware update.
+Research date: **2026-09-11**. This extension adds a second static page using the existing QR encoder and visual style. Timecode's clock/reference logic is unchanged. The earlier shoot result applies to Timecode QR; Camera Settings QR was subsequently field tested after a firmware update.
 
 **Firmware requirement:** settings QR uses GoPro Labs firmware for the selected camera. GoPro’s [Labs overview](https://gopro.com/en/us/info/gopro-labs) explicitly describes special firmware for configuration QR, and its [control index](https://gopro.github.io/labs/control/) lists MISSION configuration under Labs-enabled cameras. The project’s successful stock-firmware timecode tests do not establish support for these configuration commands.
 
 **Hardware report, 2026-09-11:** the project owner scanned a configuration QR on original GoPro firmware and saw “Timecode not synced”; no settings changed. The exact command and numeric firmware version were not provided. The likely explanation is the stock timecode reader rejecting a Labs settings payload, but the exact firmware error path has not been independently confirmed. The UI now states the Labs requirement before the form and links to troubleshooting. On stock firmware, set capture options manually and use Timecode QR to jam. Do not interpret this failed scan as successful camera-settings validation.
 
-**Follow-up, 2026-09-11:** the owner reported “I updated the firmware and everything works perfectly.” This records successful use of the settings workflow on the owner's MISSION 1 setup after updating firmware. The exact build, individual presets and HDMI capture-chain results were not supplied. See the [hardware report](HARDWARE_VALIDATION.md).
+**Follow-up, 2026-09-11:** the owner reported “I updated the firmware and everything works perfectly.” This records field-tested use of the settings workflow on the owner's MISSION 1 setup after updating firmware. The exact build, individual presets and HDMI capture-chain results were not supplied. See the [hardware report](HARDWARE_VALIDATION.md).
 
 ## Source decisions
 
@@ -46,36 +46,36 @@ Stabilization coverage is intentionally narrower than the camera's possible feat
 
 ## Starter presets
 
-The global **Capture target** defaults to **8K 16:9 / 24 fps**. Cinema, Run & Gun and Custom inherit it; Streaming / Live keeps 4K and follows the rate up to 60 fps; Slow Motion and High Frame Rate have fixed overrides. Every preset defaults to 16:9 and resolves into a fresh, editable form. Open Gate remains available as a target or manual choice. Editing any field changes the selector to Custom. The five configured video presets all use 10-bit, High bitrate and Low sharpness. Streaming / Live uses Natural color; the other four use GP-Log2. Noise reduction and EV are left unchanged. ISO is an auto ceiling, not an asserted 100 minimum.
+The global **Capture target** defaults to **4K 16:9 / 24 fps**. Cinema, Run & Gun and Custom inherit it; Streaming / Live keeps 1080p and follows the rate up to 60 fps; Slow Motion and High Frame Rate have fixed overrides. Every preset defaults to 16:9 and resolves into a fresh, editable form. Open Gate remains available as a target or manual choice. Editing any field changes the selector to Custom. The five configured video presets all use 10-bit, High bitrate and Low sharpness. Streaming / Live uses Natural color; the other four use GP-Log2. Noise reduction and EV are left unchanged. ISO is an auto ceiling, not an asserted 100 minimum.
 
 | Preset | Resolution / rate mode | Shutter | WB | ISO ceiling | HyperSmooth |
 |---|---|---|---|---|---|
-| Production / Cinema | Target (default 8K 16:9 / 24) | 180° | 5500K | 400 | Off |
-| Run & Gun | Target (default 8K 16:9 / 24) | Auto | Auto | 1600 | On; Off initially on ILS or outside verified coverage |
-| Streaming / Live | 4K 16:9 / target rate, capped at 60 (default 24) | 180° | 5500K | 800 | Off |
+| Production / Cinema | Target (default 4K 16:9 / 24) | 180° | 5500K | 800 | Off |
+| Run & Gun | Target (default 4K 16:9 / 24) | 180° | 5500K | 800 | On; Off initially on ILS or outside verified coverage |
+| Streaming / Live | 1080p 16:9 / target rate, capped at 60 (default 24) | 180° | 5500K | 800 | Off |
 | Slow Motion | 4K 16:9 / 60 | 180° | 5500K | 800 | Off |
 | High Frame Rate | 4K 16:9 / 120 | 180° | 5500K | 1600 | Off |
-| Custom | Target (default 8K 16:9 / 24) | Unchanged | Unchanged | Unchanged | Unchanged |
+| Custom | Target (default 4K 16:9 / 24) | Unchanged | Unchanged | Unchanged | Unchanged |
 
 Changing the target updates the active normal preset. In Custom it changes only resolution and frame rate, preserving other edits. Slow Motion and High Frame Rate keep their capture overrides while selected; once edited into Custom, subsequent target changes update their resolution and rate too. The UI compares the actual capture settings with the target and explicitly explains differences. A 4K30 target therefore produces 4K30 Cinema, Run & Gun and Custom commands, while the two special presets remain 4K60 / 4K120. The angle-based shutter follows the resulting frame rate automatically.
 
-Streaming / Live always starts in 4K 16:9. A target rate of 24, 25, 30, 50 or 60 is inherited; 100/120/200/240 targets explicitly resolve to 60. That override is visible, persists with the selected preset, and never changes the global target itself. Once edited into Custom, the normal Custom target behavior applies. Natural is an application default for live use without a log LUT, not a GoPro-mandated setting. Users can choose GP-Log2 for a live LUT pipeline. The 10-bit and High bitrate selections are camera recording controls; HDMI format, color and bit depth must be verified at the capture device. The preset does not configure an HDMI link or encoder, start a stream, disable sleep, or change audio. See the [HDMI streaming workflow](../public/guide.html#streaming-live).
+Streaming / Live always starts in 1080p 16:9. A target rate of 24, 25, 30, 50 or 60 is inherited; 100/120/200/240 targets explicitly resolve to 60. That override is visible, persists with the selected preset, and never changes the global target itself. Once edited into Custom, the normal Custom target behavior applies. Natural is an application default for live use without a log LUT, not a GoPro-mandated setting. Users can choose GP-Log2 for a live LUT pipeline. The 10-bit and High bitrate selections are camera recording controls; HDMI format, color and bit depth must be verified at the capture device. The preset does not configure an HDMI link or encoder, start a stream, disable sleep, or change audio. See the [HDMI streaming workflow](../public/guide.html#streaming-live).
 
 Unsupported capture pairs remain visible and block command generation instead of silently changing the target. A special preset can still generate its supported override when the target is unavailable on the selected model; both the unavailable target and actual override are shown. Run & Gun switches HyperSmooth Off when its target falls outside the tool’s verified stabilization coverage, with an explanation. Custom stabilization choices are validated without being changed automatically.
 
 Photo mode emits none of the target's video settings. During a session the video draft retains its preset behavior, and target changes apply to that draft when appropriate. Returning from Photo restores that draft. If the page reloads or the camera model changes while in Photo, there is no video draft; returning to Video starts from Custom at the current target.
 
-Exact commands for **MISSION 1 PRO**, with the default 8K24 target:
+Exact commands for **MISSION 1 PRO**, with the default 4K24 target:
 
 ```text
 Production / Cinema
-mVr8p24e0d1hH0cLbHw55i4s180sL
+mVr4p24e0d1hH0cLbHw55i8s180sL
 
 Run & Gun
-mVr8p24e1d1hH0cLbHwAi16s0sL
+mVr4p24e1d1hH0cLbHw55i8s180sL
 
 Streaming / Live
-mVr4p24e0d1hH0cNbHw55i8s180sL
+mVr1p24e0d1hH0cNbHw55i8s180sL
 
 Slow Motion
 mVr4p60e0d1hH0cLbHw55i8s180sL
@@ -84,10 +84,10 @@ High Frame Rate
 mVr4p120e0d1hH0cLbHw55i16s180sL
 
 Custom
-mVr8p24
+mVr4p24
 ```
 
-Cinema uses the same 8K 16:9 / 24 command on all three supported models. ILS Run & Gun substitutes `e0` for `e1` until the user chooses stabilization and confirms a suitable lens. Photo with RAW, 5500K and +0.5 EV produces `mPrw55x.5`.
+Cinema uses the same 4K 16:9 / 24 command on all three supported models. ILS Run & Gun substitutes `e0` for `e1` until the user chooses stabilization and confirms a suitable lens. Photo with RAW, 5500K and +0.5 EV produces `mPrw55x.5`.
 
 **24 does not promise 24.000:** `p24` can select 23.976 with the camera's default broadcast timing. The 180° shutter hint is calculated from the nominal rate; at 23.976 it is approximately 1/47.952 second. Configure exact integer timing separately and check clip metadata. These commands do not change timecode, ALLI, 24HZ or TCAL.
 

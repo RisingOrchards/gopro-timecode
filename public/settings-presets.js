@@ -4,11 +4,11 @@
   else root.IgorCameraPresets = factory(root.IgorCameraCapabilities);
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (C) {
   'use strict';
-  const defaultTarget = Object.freeze({ resolution: '8k', frameRate: '24' });
+  const defaultTarget = Object.freeze({ resolution: '4k', frameRate: '24' });
   const definitions = Object.freeze({
-    cinema: Object.freeze({ label: 'Production / Cinema', description: 'Your target · 180° shutter · 5500K · 10-bit GP-Log2', settings: Object.freeze({ whiteBalance: '5500', shutter: '180', isoMax: '400', stabilization: 'off' }) }),
-    run: Object.freeze({ label: 'Run & Gun', description: 'Your target · auto exposure and white balance · 10-bit GP-Log2', settings: Object.freeze({ whiteBalance: 'auto', shutter: 'auto', isoMax: '1600', stabilization: 'on' }) }),
-    live: Object.freeze({ label: 'Streaming / Live', description: '4K 16:9 · target rate up to 60 fps · Natural color · 5500K · 180° shutter · HyperSmooth Off for a mounted camera', settings: Object.freeze({ resolution: '4k', colorProfile: 'natural', whiteBalance: '5500', shutter: '180', isoMax: '800', stabilization: 'off' }) }),
+    cinema: Object.freeze({ label: 'Production / Cinema', description: 'Your target · 180° shutter · 5500K · ISO 800 · 10-bit GP-Log2', settings: Object.freeze({ whiteBalance: '5500', shutter: '180', isoMax: '800', stabilization: 'off' }) }),
+    run: Object.freeze({ label: 'Run & Gun', description: 'Your target · 180° shutter · 5500K · ISO 800 · HyperSmooth On · 10-bit GP-Log2', settings: Object.freeze({ whiteBalance: '5500', shutter: '180', isoMax: '800', stabilization: 'on' }) }),
+    live: Object.freeze({ label: 'Streaming / Live', description: '1080p 16:9 · target rate up to 60 fps · Natural color · 5500K · 180° shutter · ISO 800 · HyperSmooth Off for a mounted camera', settings: Object.freeze({ resolution: '1080', colorProfile: 'natural', whiteBalance: '5500', shutter: '180', isoMax: '800', stabilization: 'off' }) }),
     slow: Object.freeze({ label: 'Slow Motion', description: '4K60 with 180° shutter (about 1/120 second).', settings: Object.freeze({ resolution: '4k', frameRate: '60', whiteBalance: '5500', shutter: '180', isoMax: '800', stabilization: 'off' }) }),
     high: Object.freeze({ label: 'High Frame Rate', description: '4K120 with 180° shutter (about 1/240 second).', settings: Object.freeze({ resolution: '4k', frameRate: '120', whiteBalance: '5500', shutter: '180', isoMax: '1600', stabilization: 'off' }) }),
     custom: Object.freeze({ label: 'Custom', description: 'Start with your target; other settings are unchanged.', settings: Object.freeze({}) })

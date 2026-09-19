@@ -2,7 +2,7 @@
 
 **Timecode QR is field tested on a real MISSION 1 shoot.** The project owner confirmed successful production use on 2026-09-11.
 
-**Camera Settings QR is owner-confirmed working after a firmware update.** The follow-up report was received on 2026-09-11.
+**Camera Settings QR is field tested after a firmware update.** The follow-up report was received on 2026-09-11.
 
 ## Reported results
 

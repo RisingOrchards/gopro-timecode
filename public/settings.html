@@ -40,7 +40,7 @@
   </header>
   <main>
     <nav class="tool-tabs" aria-label="QR tools"><a href="./">Timecode QR</a><a href="./settings.html" aria-current="page">Camera Settings QR</a></nav>
-    <div class="intro"><div><p class="eyebrow">GOPRO LABS · MISSION SERIES</p><h1>Your settings. One scan.</h1><p>Start with a preset. Make it yours. Show the QR to your camera.</p></div><span class="test-label">Settings · Scan-test before use</span></div>
+    <div class="intro"><div><p class="eyebrow">GOPRO LABS · MISSION SERIES</p><h1>Your settings. One scan.</h1><p>Start with a preset. Make it yours. Show the QR to your camera.</p></div><span class="test-label">Settings · Field tested</span></div>
     <aside class="settings-firmware" aria-labelledby="settings-firmware-title">
       <strong id="settings-firmware-title">GoPro Labs firmware required for settings QR</strong>
       <p>Use <a href="https://gopro.github.io/labs/" target="_blank" rel="noopener noreferrer">GoPro Labs firmware for your camera model</a> to apply these configuration codes. On stock firmware, apply the displayed settings manually, then use <a href="./">Timecode QR</a> to jam your camera.</p>
@@ -60,7 +60,7 @@
           </fieldset>
           <label for="camera-preset">Preset</label><select id="camera-preset"></select>
           <p class="hint" id="preset-description"></p>
-          <p class="hint" id="camera-live-note" hidden>Set clean 4K HDMI output on the camera and check the resolution, rate and color received by your capture device. This preset configures capture settings. <a href="./guide.html#streaming-live">HDMI streaming setup ↗</a></p>
+          <p class="hint" id="camera-live-note" hidden>Set clean 1080p HDMI output on the camera and check the resolution, rate and color received by your capture device. This preset configures capture settings. <a href="./guide.html#streaming-live">HDMI streaming setup ↗</a></p>
           <div class="settings-grid camera-context">
             <div><label for="camera-model">Camera model</label><select id="camera-model"></select></div>
             <div><label for="camera-mode">Capture mode</label><select id="camera-mode"><option value="video">Video</option><option value="photo">Photo</option></select></div>
@@ -125,7 +125,7 @@
         <div class="jam-actions"><button id="camera-fullscreen" class="secondary" type="button" disabled>Full screen QR</button><a class="secondary" href="#camera-form">Edit settings</a></div>
         <div class="payload settings-payload"><p>GoPro Labs command</p><code id="camera-command">Generate a QR to see the command.</code><button class="secondary" id="camera-copy" type="button" disabled>Copy Command</button><p id="camera-copy-status" role="status"></p></div>
         <p class="hint" id="camera-firmware-note"></p>
-        <p class="hint">Check applied settings before recording. Timecode QR is field tested on stock MISSION 1 firmware; settings QR requires Labs.</p>
+        <p class="hint">Check applied settings before recording. Timecode QR is field tested on stock MISSION 1 firmware; Camera Settings QR is field tested with updated firmware and requires Labs.</p>
         <a class="settings-doc-link" href="./guide.html#camera-settings">Supported settings &amp; limitations ↗</a>
       </section>
     </div>

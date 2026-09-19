@@ -11,12 +11,12 @@ const blank = () => ({ ...P.resolve('custom', pro), resolution: null, frameRate:
 
 test('starter commands match independently specified MISSION command fixtures', () => {
   const expected = {
-    cinema: 'mVr8p24e0d1hH0cLbHw55i4s180sL',
-    run: 'mVr8p24e1d1hH0cLbHwAi16s0sL',
-    live: 'mVr4p24e0d1hH0cNbHw55i8s180sL',
+    cinema: 'mVr4p24e0d1hH0cLbHw55i8s180sL',
+    run: 'mVr4p24e1d1hH0cLbHw55i8s180sL',
+    live: 'mVr1p24e0d1hH0cNbHw55i8s180sL',
     slow: 'mVr4p60e0d1hH0cLbHw55i8s180sL',
     high: 'mVr4p120e0d1hH0cLbHw55i16s180sL',
-    custom: 'mVr8p24'
+    custom: 'mVr4p24'
   };
   for (const [id, command] of Object.entries(expected)) assert.equal(G.buildGoProCommand(P.resolve(id, pro), pro), command);
 });
@@ -32,12 +32,12 @@ test('every preset resolves without mutation for all three camera models', () =>
   for (const model of Object.keys(C.models)) for (const id of Object.keys(P.definitions)) {
     const first = P.resolve(id, model), second = P.resolve(id, model);
     assert.deepEqual(G.validate(first, model), []);
-    assert.ok(['8k', '4k'].includes(first.resolution), id + ' must default to 16:9 on ' + model);
+    assert.ok(['8k', '4k', '1080'].includes(first.resolution), id + ' must default to 16:9 on ' + model);
     assert.ok(G.buildGoProCommand(first, model).startsWith('mV'));
     first.whiteBalance = 'auto';
     assert.deepEqual(second, P.resolve(id, model));
   }
-  assert.equal(P.resolve('cinema', 'mission-1').resolution, '8k');
+  assert.equal(P.resolve('cinema', 'mission-1').resolution, '4k');
   assert.equal(P.resolve('run', 'mission-1-pro-ils').stabilization, 'off');
 });
 test('documented resolution/rate boundaries differ between MISSION and PRO', () => {
@@ -65,8 +65,8 @@ test('Cinema, Run & Gun and Custom follow every supported target without changin
       }
     }
   }
-  assert.equal(G.buildGoProCommand(P.resolve('run', pro, { resolution: '4k', frameRate: '30' }), pro), 'mVr4p30e1d1hH0cLbHwAi16s0sL');
-  assert.equal(G.buildGoProCommand(P.resolve('cinema', pro, { resolution: '4k', frameRate: '30' }), pro), 'mVr4p30e0d1hH0cLbHw55i4s180sL');
+  assert.equal(G.buildGoProCommand(P.resolve('run', pro, { resolution: '4k', frameRate: '30' }), pro), 'mVr4p30e1d1hH0cLbHw55i8s180sL');
+  assert.equal(G.buildGoProCommand(P.resolve('cinema', pro, { resolution: '4k', frameRate: '30' }), pro), 'mVr4p30e0d1hH0cLbHw55i8s180sL');
   assert.equal(G.buildGoProCommand(P.resolve('custom', pro, { resolution: '4k', frameRate: '30' }), pro), 'mVr4p30');
 });
 
@@ -80,17 +80,17 @@ test('special presets keep explicit capture overrides; unsupported normal target
   assert.deepEqual(target, { resolution: '8k', frameRate: '60' });
 });
 
-test('Streaming / Live keeps 4K, follows target rates through 60 and emits capture settings only', () => {
+test('Streaming / Live keeps 1080p, follows target rates through 60 and emits capture settings only', () => {
   for (const model of Object.keys(C.models)) for (const frameRate of ['24', '25', '30', '50', '60', '100', '120', '200', '240']) {
     const target = Object.freeze({ resolution: '8k', frameRate });
     const settings = P.resolve('live', model, target);
     const actualRate = Number(frameRate) > 60 ? '60' : frameRate;
-    assert.equal(G.buildGoProCommand(settings, model), 'mVr4p' + actualRate + 'e0d1hH0cNbHw55i8s180sL');
+    assert.equal(G.buildGoProCommand(settings, model), 'mVr1p' + actualRate + 'e0d1hH0cNbHw55i8s180sL');
     assert.deepEqual(G.decodeState(G.encodeState(settings, model, target, 'live')), { model, settings, target, preset: 'live' });
   }
   const live = P.resolve('live', pro, { resolution: '4k-open', frameRate: '30' });
-  assert.equal(live.resolution, '4k');
-  assert.equal(G.buildGoProCommand({ ...live, colorProfile: 'log2' }, pro), 'mVr4p30e0d1hH0cLbHw55i8s180sL');
+  assert.equal(live.resolution, '1080');
+  assert.equal(G.buildGoProCommand({ ...live, colorProfile: 'log2' }, pro), 'mVr1p30e0d1hH0cLbHw55i8s180sL');
   assert.equal(P.resolve('live', pro).colorProfile, 'natural');
 });
 test('incomplete selections, GP-Log2 in 8-bit and unverified features are rejected', () => {
@@ -119,11 +119,11 @@ test('stabilization coverage and ILS lens confirmation are checked by the builde
   assert.throws(() => G.buildGoProCommand({ ...P.resolve('cinema', pro), resolution: '8k-open', stabilization: 'on' }, pro), /not been verified/);
   assert.throws(() => G.buildGoProCommand({ ...P.resolve('high', pro), stabilization: 'auto' }, pro), /not been verified/);
   assert.throws(() => G.buildGoProCommand(P.resolve('run', pro), 'mission-1-pro-ils'), /supported for HyperSmooth/);
-  assert.equal(G.buildGoProCommand({ ...P.resolve('run', pro), ilsLens: true }, 'mission-1-pro-ils'), 'mVr8p24e1d1hH0cLbHwAi16s0sL');
+  assert.equal(G.buildGoProCommand({ ...P.resolve('run', pro), ilsLens: true }, 'mission-1-pro-ils'), 'mVr4p24e1d1hH0cLbHw55i8s180sL');
 });
 test('editing each preset field changes only its corresponding command component', () => {
   const base = P.resolve('cinema', pro);
-  const changes = { resolution: '4k', frameRate: '25', whiteBalance: '3200', shutter: '90', isoMax: '800', isoMode: 'fixed', bitrate: 'standard', colorProfile: 'natural', sharpness: 'high', denoise: 'low' };
+  const changes = { resolution: '8k', frameRate: '25', whiteBalance: '3200', shutter: '90', isoMax: '400', isoMode: 'fixed', bitrate: 'standard', colorProfile: 'natural', sharpness: 'high', denoise: 'low' };
   const original = G.components(base, pro);
   for (const [field, value] of Object.entries(changes)) {
     const component = field.startsWith('iso') ? 'iso' : field;
